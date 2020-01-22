@@ -15,7 +15,7 @@ API_TOKEN_URL = "https://accounts.spotify.com/api/token"
 HOME_URL = "0.0.0.0/"
 URL = "https://accounts.spotify.com/authorize"
 SCOPE_AUTHORIZATION = ['user-library-read', 'user-library-modify' ] #see this url for more information ==> https://developer.spotify.com/documentation/general/guides/scopes/
-
+REDIRECT_URL = "https://0.0.0.0:443/get-token"
 
 class Spotify:
     def __init__(self):
@@ -64,3 +64,18 @@ class Spotify:
         content = json.loads(result.content.decode('UTF-8'))
         self.baerer_token = content.get('access_token') #use for all api request
         return HOME_URL
+
+    def get_user(self, token):
+        """
+        Get user information
+        """
+        headers = {
+            'Authorization': token,
+        }
+        print(f"HEADERS:::{headers}")
+        result = requests.get(
+            url="https://api.spotify.com/v1/me/",
+            headers=headers
+        )
+
+        return result.content
