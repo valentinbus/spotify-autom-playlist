@@ -9,7 +9,8 @@ from flask import (
     jsonify,
     Response,
     redirect,
-    session
+    session,
+    flash
 )
 from flask_session import Session
 from backend.spotify import Spotify
@@ -25,6 +26,14 @@ app = Flask(__name__)
 CORS(app)
 app.config['SECRET_KEY'] = "secret_keyoidozinfoinoqifnoeinosifn"
 
+def valid_token(f):
+    def wrap():
+        if session.get('baerer_token'):
+            return f()
+        else:
+            flash('You need to have a valid token')
+            return redirect('/authent')
+    return wrap
 
 @app.route('/', methods=["GET"])
 def home():
@@ -45,12 +54,10 @@ def get_token():
 
 
 @app.route('/get-user', methods=["GET"])
+@valid_token
 def get_user():
-    
     user_information = spotify.get_user(session.get('baerer_token')).decode('utf-8')
-    
     user_information = json.loads(user_information)
-
     return user_information
 
 
