@@ -2,6 +2,7 @@
 To authent user have to go on /authent
 """
 import json
+import logging
 from flask import (
     Flask,
     request,
@@ -15,29 +16,38 @@ from flask import (
 from flask_session import Session
 from backend.spotify import Spotify
 from flask_cors import CORS, cross_origin
+from flask_caching import Cache
+from functools import wraps
+
 
 from pprint import pprint
 
-
-
+logging.basicConfig(level=logging.DEBUG)
 spotify = Spotify()
 
 app = Flask(__name__)
 CORS(app)
 app.config['SECRET_KEY'] = "secret_keyoidozinfoinoqifnoeinosifn"
+cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 
 def valid_token(f):
-    def wrap():
+    @wraps(f)
+    def wrap(*args, **kwargs):
         if session.get('baerer_token'):
-            return f()
+            try:
+                if f().get('error'):
+                    return redirect('/authent')
+            except:
+                return f()
         else:
             flash('You need to have a valid token')
             return redirect('/authent')
     return wrap
 
+
 @app.route('/', methods=["GET"])
 def home():
-    return Response("Vous êtes authentifié :)")
+    return Response("Bienvenue")
 
 
 @app.route('/authent', methods=["GET"])
@@ -50,7 +60,8 @@ def get_token():
     code = request.args.get('code')
     spotify._get_baerer_token(code)
     session['baerer_token'] = f'Bearer {spotify.baerer_token}'
-    return redirect("/")
+    #return redirect("/")
+    return Response('Vous êtes connecté :)')
 
 
 @app.route('/get-user', methods=["GET"])
