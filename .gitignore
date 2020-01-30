@@ -4,3 +4,5 @@ venv/
 .vscode/settings.json
 
 *.pyc
+
+flask/zappa_settings.json

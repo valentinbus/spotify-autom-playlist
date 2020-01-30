@@ -56,15 +56,31 @@ def get_token():
 @app.route('/get-user', methods=["GET"])
 @valid_token
 def get_user():
-    user_information = spotify.get_user(session.get('baerer_token')).decode('utf-8')
-    user_information = json.loads(user_information)
-    return user_information
+    user_information = spotify.get_user(
+        session.get('baerer_token')
+    ).decode('utf-8')
+    return jsonify(json.loads(user_information))
+
+
+@app.route('/get-tracks', methods=["GET"])
+@cache.cached(timeout=1000)
+@valid_token
+def get_tracks():
+    tracks = spotify.get_tracks(session.get('baerer_token'))
+    return jsonify(tracks)
+
+
+@app.route('/get-cache', methods=["GET"])
+@cache.cached(timeout=1000)
+@valid_token
+def get_cache():
+    return get_tracks()
 
 
 if __name__ == '__main__':
     app.run(
         debug=True,
-        host='0.0.0.0',
+        host='https://nzh8p1ckm8.execute-api.eu-west-1.amazonaws.com/',
         port=443,
         ssl_context=('cert.pem', 'key.pem')
     )
