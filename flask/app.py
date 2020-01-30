@@ -69,8 +69,8 @@ def get_token():
 def get_user():
     user_information = spotify.get_user(
         session.get('baerer_token')
-    ).decode('utf-8')
-    return jsonify(json.loads(user_information))
+    )
+    return jsonify(user_information)
 
 
 @app.route('/get-tracks', methods=["GET"])

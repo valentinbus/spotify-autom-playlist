@@ -83,7 +83,7 @@ class Spotify:
             headers=headers
         )
 
-        return result.content
+        return result.json()
 
 
     def get_tracks(self, token):
