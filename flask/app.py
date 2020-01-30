@@ -1,26 +1,23 @@
 """
 To authent user have to go on /authent
 """
-import json
 import logging
 from flask import (
     Flask,
     request,
-    render_template,
     jsonify,
     Response,
     redirect,
     session,
     flash
 )
-from flask_session import Session
 from backend.spotify import Spotify
-from flask_cors import CORS, cross_origin
+from flask_cors import CORS
 from flask_caching import Cache
 from functools import wraps
 
-
 from pprint import pprint
+
 
 logging.basicConfig(level=logging.DEBUG)
 spotify = Spotify()
