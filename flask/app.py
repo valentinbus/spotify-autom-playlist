@@ -91,7 +91,7 @@ def get_cache():
 if __name__ == '__main__':
     app.run(
         debug=True,
-        host='https://nzh8p1ckm8.execute-api.eu-west-1.amazonaws.com/',
+        host='0.0.0.0',
         port=443,
         ssl_context=('cert.pem', 'key.pem')
     )
