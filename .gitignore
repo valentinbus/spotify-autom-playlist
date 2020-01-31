@@ -6,3 +6,6 @@ venv/
 *.pyc
 
 flask/zappa_settings.json
+
+cert.pem
+key.pem
