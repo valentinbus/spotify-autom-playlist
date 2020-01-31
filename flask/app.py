@@ -1,6 +1,7 @@
 """
 To authent user have to go on /authent
 """
+import json
 import logging
 from flask import (
     Flask,
@@ -28,19 +29,30 @@ app.config['SECRET_KEY'] = "secret_keyoidozinfoinoqifnoeinosifn"
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 
 def valid_token(f):
-    @wraps(f)
+    @wraps(f) #util if we use multiple times this decorator
     def wrap(*args, **kwargs):
         if session.get('baerer_token'):
             try:
-                if f().get('error'):
+
+                if isinstance(f().get_json(), list):
+                    for element in f().get_json():
+                        if element.get('error'):
+                            return redirect('/authent')
+                        else:
+                            return f()
+
+                elif f().get_json().get('error'):
                     return redirect('/authent')
-            except:
-                return f()
+
+                else:
+                    return f()
+
+            except Exception as e:
+                logging.debug(f"EROR::::: {e}")
         else:
             flash('You need to have a valid token')
             return redirect('/authent')
     return wrap
-
 
 @app.route('/', methods=["GET"])
 def home():
@@ -57,7 +69,6 @@ def get_token():
     code = request.args.get('code')
     spotify._get_baerer_token(code)
     session['baerer_token'] = f'Bearer {spotify.baerer_token}'
-    #return redirect("/")
     return Response('Vous êtes connecté :)')
 
 
