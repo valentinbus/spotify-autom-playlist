@@ -1,0 +1,40 @@
+version: "2"
+services:
+    db:
+        image: postgres
+        hostname: spotify-autom
+        ports: 
+            - "5432:5432"
+        environment:
+            POSTGRES_DATABASE: SPOTIFY_AUTOM
+            POSTGRES_USER: root
+            POSTGRES_PASSWORD: root
+            PGADMIN_DEFAULT_EMAIL: valentinoiho@gmail.com
+            PGADMIN_DEFAULT_PASSWORD: root
+        volumes:
+            - /var/lib/postgres
+        networks:
+            - SPOTIFY_AUTOM
+    pgadmin:
+        image: dpage/pgadmin4
+        hostname: spotify-autom
+        links: 
+            - db:db
+        depends_on:
+            - db
+        ports:
+            - "80:80"
+        environment:
+            POSTGRES_DATABASE: SPOTIFY_AUTOM
+            POSTGRES_USER: root
+            POSTGRES_PASSWORD: root
+            PGADMIN_DEFAULT_EMAIL: valentinoiho@gmail.com
+            PGADMIN_DEFAULT_PASSWORD: root
+
+        networks:
+            - SPOTIFY_AUTOM
+volumes:
+  mysql_data:
+    driver: local
+networks:
+  SPOTIFY_AUTOM:
