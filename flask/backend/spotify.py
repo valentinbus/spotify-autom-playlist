@@ -11,10 +11,11 @@ logging.basicConfig(level=logging.DEBUG)
 CLIENT_ID = os.getenv('SPOTIFY_CLIENT_ID')
 CLIENT_SECRET = os.getenv('SPOTIFY_CLIENT_SECRET_ID')
 API_TOKEN_URL = "https://accounts.spotify.com/api/token"
-HOME_URL = 'https://nzh8p1ckm8.execute-api.eu-west-1.amazonaws.com/dev/'
+
+HOME_URL = "0.0.0.0/"
 URL = "https://accounts.spotify.com/authorize"
 SCOPE_AUTHORIZATION = ['user-library-read', 'user-library-modify' ] #see this url for more information ==> https://developer.spotify.com/documentation/general/guides/scopes/
-REDIRECT_URL = "https://nzh8p1ckm8.execute-api.eu-west-1.amazonaws.com/dev/get-token"
+REDIRECT_URL = "https://0.0.0.0:443/get-token"
 
 class Spotify:
     def __init__(self):
