@@ -62,3 +62,5 @@ def test_get_tracks(monkeypatch):
     assert(
         spotify.get_tracks("token") == [result]
     )
+
+#TODO test with valid/invalid token
