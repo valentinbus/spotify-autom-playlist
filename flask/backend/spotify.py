@@ -15,8 +15,7 @@ API_TOKEN_URL = "https://accounts.spotify.com/api/token"
 HOME_URL = "0.0.0.0/"
 URL = "https://accounts.spotify.com/authorize"
 SCOPE_AUTHORIZATION = ['user-library-read', 'user-library-modify' ] #see this url for more information ==> https://developer.spotify.com/documentation/general/guides/scopes/
-REDIRECT_URL_DEV = "http://0.0.0.0:80/get-token"
-#REDIRECT_URL_PROD = "https://nzh8p1ckm8.execute-api.eu-west-1.amazonaws.com/dev/get-token"
+REDIRECT_URL = "http://0.0.0.0:80/get-token"
 
 class Spotify:
     def __init__(self):
