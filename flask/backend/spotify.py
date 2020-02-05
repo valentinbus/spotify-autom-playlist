@@ -11,13 +11,10 @@ logging.basicConfig(level=logging.DEBUG)
 CLIENT_ID = os.getenv('SPOTIFY_CLIENT_ID')
 CLIENT_SECRET = os.getenv('SPOTIFY_CLIENT_SECRET_ID')
 API_TOKEN_URL = "https://accounts.spotify.com/api/token"
-
-HOME_URL_DEV = "0.0.0.0/"
-#HOME_URL_PROD = 'https://nzh8p1ckm8.execute-api.eu-west-1.amazonaws.com/dev/'
+HOME_URL = 'https://nzh8p1ckm8.execute-api.eu-west-1.amazonaws.com/dev/'
 URL = "https://accounts.spotify.com/authorize"
 SCOPE_AUTHORIZATION = ['user-library-read', 'user-library-modify' ] #see this url for more information ==> https://developer.spotify.com/documentation/general/guides/scopes/
-REDIRECT_URL_DEV = "https://0.0.0.0:443/get-token"
-#REDIRECT_URL_PROD = "https://nzh8p1ckm8.execute-api.eu-west-1.amazonaws.com/dev/get-token"
+REDIRECT_URL = "https://nzh8p1ckm8.execute-api.eu-west-1.amazonaws.com/dev/get-token"
 
 class Spotify:
     def __init__(self):
@@ -29,7 +26,7 @@ class Spotify:
         Give url for user authorization
         """
         data = {
-            'redirect_uri': REDIRECT_URL_DEV,
+            'redirect_uri': REDIRECT_URL,
             'client_id': CLIENT_ID,
             'response_type': 'code',
             'scope': SCOPE_AUTHORIZATION
@@ -56,7 +53,7 @@ class Spotify:
         data = {
             'grant_type': 'authorization_code',
             'code': code,
-            'redirect_uri': REDIRECT_URL_DEV
+            'redirect_uri': REDIRECT_URL
         }
 
         result = requests.post(
@@ -67,7 +64,7 @@ class Spotify:
 
         content = json.loads(result.content.decode('UTF-8'))
         self.baerer_token = content.get('access_token') #use for all api request
-        return HOME_URL_DEV
+        return HOME_URL
 
 
     def get_user(self, token):
