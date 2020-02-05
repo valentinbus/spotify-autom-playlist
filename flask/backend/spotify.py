@@ -12,10 +12,10 @@ CLIENT_ID = os.getenv('SPOTIFY_CLIENT_ID')
 CLIENT_SECRET = os.getenv('SPOTIFY_CLIENT_SECRET_ID')
 API_TOKEN_URL = "https://accounts.spotify.com/api/token"
 
-HOME_URL = "0.0.0.0/"
+HOME_URL = os.getenv('HOME_URL')
 URL = "https://accounts.spotify.com/authorize"
 SCOPE_AUTHORIZATION = ['user-library-read', 'user-library-modify' ] #see this url for more information ==> https://developer.spotify.com/documentation/general/guides/scopes/
-REDIRECT_URL = "http://0.0.0.0:80/get-token"
+REDIRECT_URL = os.getenv('REDIRECT_URL')
 
 class Spotify:
     def __init__(self):

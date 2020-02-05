@@ -4,7 +4,7 @@ services:
         image: postgres
         hostname: spotify-autom
         ports: 
-            - "5432:5432"
+            - "5433:5432"
         environment:
             POSTGRES_DATABASE: SPOTIFY_AUTOM
             POSTGRES_USER: root
