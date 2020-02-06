@@ -1,5 +1,6 @@
 argcomplete==1.9.3
 attrs==19.3.0
+autopep8==1.5
 boto3==1.11.8
 botocore==1.14.8
 certifi==2019.11.28
@@ -26,7 +27,9 @@ more-itertools==8.1.0
 packaging==20.1
 placebo==0.9.0
 pluggy==0.13.1
+psycopg2-binary==2.8.4
 py==1.8.1
+pycodestyle==2.5.0
 pyparsing==2.4.6
 pytest==5.3.4
 python-dateutil==2.6.1

@@ -33,17 +33,17 @@ jobs:
       env:
         HOME_URL: ${{ secrets.HOME_URL }}
         REDIRECT_URL: ${{ secrets.REDIRECT_URL }}
-      runs: 
-        pip install virtualenv
-        virtualenv venv
-        source ./venv/bin/activate
-
-        mkdir ~/.aws/
+      run: |
+        pip install virtualenv 
+        virtualenv venv 
+        source ./venv/bin/activate 
+        pip install -r ../requirements.txt
+        mkdir ~/.aws/ 
         echo "[perso]
         aws_access_key_id = ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws_secret_access_key = ${{ secrets.AWS_SECRET_KEY_ID }}
-        region = eu-west-1" > ~/.aws/credentials
-        cat ~/.aws/credentials
+        region = eu-west-1" > ~/.aws/credentials 
+        cat ~/.aws/credentials 
         echo '{
           "dev":{
               "app_function":"app.app",
@@ -58,5 +58,5 @@ jobs:
                   "REDIRECT_URL":"https://nzh8p1ckm8.execute-api.eu-west-1.amazonaws.com/dev/get-token"
               }
           }
-        }' > zappa_settings.json
+        }' > zappa_settings.json 
         zappa update
