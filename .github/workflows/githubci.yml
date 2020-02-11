@@ -40,10 +40,6 @@ jobs:
       uses: actions/setup-python@v1
       with:
         python-version: 3.7
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
     - name: Deploy
       working-directory: flask
       env:
@@ -60,19 +56,5 @@ jobs:
         aws_secret_access_key = ${{ secrets.AWS_SECRET_KEY_ID }}
         region = eu-west-1" > ~/.aws/credentials 
         cat ~/.aws/credentials 
-        echo '{
-          "dev":{
-              "app_function":"app.app",
-              "profile_name":"perso",
-              "project_name":"flask",
-              "runtime":"python3.7",
-              "s3_bucket":"zappa-5r36r8xuk",
-              "environment_variables":{
-                  "SPOTIFY_CLIENT_ID":"${{ secrets.SPOTIFY_CLIENT_ID }}",
-                  "SPOTIFY_CLIENT_SECRET_ID":"${{ secrets.SPOTIFY_CLIENT_SECRET_ID }}",
-                  "HOME_URL":"https://nzh8p1ckm8.execute-api.eu-west-1.amazonaws.com/dev",
-                  "REDIRECT_URL":"https://nzh8p1ckm8.execute-api.eu-west-1.amazonaws.com/dev/get-token"
-              }
-          }
-        }' > zappa_settings.json 
+        echo ${{ secrets.ZAPPA_SETTINGS }} > zappa_settings.json 
         zappa update

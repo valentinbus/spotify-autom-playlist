@@ -70,7 +70,7 @@ def get_token():
     code = request.args.get('code')
     spotify._get_baerer_token(code)
     session['baerer_token'] = f'Bearer {spotify.baerer_token}'
-    return Response('Vous êtes connecté :)')
+    return Response('Vous êtes connecté')
 
 
 @app.route('/get-user', methods=["GET"])
