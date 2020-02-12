@@ -1,3 +1,4 @@
+aniso8601==8.0.0
 argcomplete==1.9.3
 attrs==19.3.0
 autopep8==1.5
@@ -12,6 +13,7 @@ durationpy==0.5
 Flask==1.1.1
 Flask-Caching==1.8.0
 Flask-Cors==3.0.8
+flask-restplus==0.13.0
 Flask-Session==0.3.1
 future==0.16.0
 hjson==3.0.1
@@ -20,6 +22,7 @@ importlib-metadata==1.4.0
 itsdangerous==1.1.0
 Jinja2==2.10.3
 jmespath==0.9.3
+jsonschema==3.2.0
 kappa==0.6.0
 lambda-packages==0.20.0
 MarkupSafe==1.1.1
@@ -31,9 +34,11 @@ psycopg2-binary==2.8.4
 py==1.8.1
 pycodestyle==2.5.0
 pyparsing==2.4.6
+pyrsistent==0.15.7
 pytest==5.3.4
 python-dateutil==2.6.1
 python-slugify==1.2.4
+pytz==2019.3
 PyYAML==5.3
 requests==2.22.0
 s3transfer==0.3.2
