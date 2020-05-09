@@ -11,7 +11,8 @@ from flask import (
     Response,
     redirect,
     session,
-    flash
+    flash,
+    render_template
 )
 from backend.spotify import Spotify
 from flask_cors import CORS
@@ -80,9 +81,9 @@ class GetToken(Resource):
         return Response('Vous êtes connecté')
 
 
-@valid_token
 @api.route('/get-user')
 class ValidToken(Resource):
+    method_decorators = [valid_token]
     def get(self):
         user_information = spotify.get_user(
             session.get('baerer_token')
@@ -90,19 +91,21 @@ class ValidToken(Resource):
         return jsonify(user_information)
 
 
-@cache.cached(timeout=1000)
-@valid_token
 @api.route('/get-tracks')
 class GetTracks(Resource):
+    method_decorators = [valid_token]
     def get(self):
         tracks = spotify.get_tracks(session.get('baerer_token'))
         return jsonify(tracks)
 
+@app.route('/test', methods=["GET"])
+def test():
+    return render_template("test.html")
 
-@cache.cached(timeout=1000)
-@valid_token
+
 @api.route('/get-cache', methods=["GET"])
 class GetCache(Resource):
+    method_decorators = [valid_token]
     def get(self):
         return get_tracks()
 
