@@ -33,6 +33,5 @@ class Db:
         return "Connection done"
 
 
-    
 db = Db()
 db._connection()

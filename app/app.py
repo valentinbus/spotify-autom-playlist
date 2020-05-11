@@ -4,6 +4,7 @@ To authent user have to go on /authent
 import json
 import logging
 import os
+from app import app
 from flask import (
     Flask,
     request,
@@ -14,7 +15,7 @@ from flask import (
     flash,
     render_template
 )
-from backend.spotify import Spotify
+from .backend.spotify import Spotify
 from flask_cors import CORS
 from flask_caching import Cache
 from flask_restplus import Api, Resource
@@ -26,12 +27,13 @@ from pprint import pprint
 logging.basicConfig(level=logging.DEBUG)
 spotify = Spotify()
 
-app = Flask(__name__)
+# app = Flask(__name__)
 api = Api(app)
 
 CORS(app)
-app.config['SECRET_KEY'] = "secret_keyoidozinfoinoqifnoeinosifn"
+# app.config['SECRET_KEY'] = "secret_keyoidozinfoinoqifnoeinosifn"
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
+
 
 def valid_token(f):
     @wraps(f) #util if we use multiple times this decorator
@@ -58,7 +60,6 @@ def valid_token(f):
             flash('You need to have a valid token')
             return redirect('/authent')
     return wrap
-
 
 @api.route('/home')
 class home(Resource):
