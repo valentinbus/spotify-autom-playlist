@@ -9,3 +9,5 @@ flask/zappa_settings.json
 
 cert.pem
 key.pem
+
+.flaskenv
