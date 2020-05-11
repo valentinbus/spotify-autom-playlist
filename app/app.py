@@ -104,11 +104,11 @@ def test():
     return render_template("test.html")
 
 
-@api.route('/get-cache', methods=["GET"])
-class GetCache(Resource):
-    method_decorators = [valid_token]
-    def get(self):
-        return get_tracks()
+# @api.route('/get-cache', methods=["GET"])
+# class GetCache(Resource):
+#     method_decorators = [valid_token]
+#     def get(self):
+#         return get_tracks()
 
 
 if __name__ == '__main__':

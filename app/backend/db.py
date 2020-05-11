@@ -9,6 +9,7 @@ Define a
 
 DB_PASSWORD=os.getenv('DB_PASSWORD')
 
+
 class Db:
     def __init__(self):
         self.host = 'localhost'
