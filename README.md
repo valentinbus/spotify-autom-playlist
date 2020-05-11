@@ -9,5 +9,5 @@ Goal: Spotify Autom Playlist is a web app that lets you automatically create pla
 - `pip install -r requirements.txt`
 - In the end of flask/app.py file change host to localhost
 - Then run the following command:
-- `python3 flask/app.py`
+- `python3 -m app/app`
 - The API will run on localhost:5000
