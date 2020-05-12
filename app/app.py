@@ -15,6 +15,10 @@ from flask import (
     flash,
     render_template
 )
+from .backend.models import (
+    User, 
+    Playlist
+)
 from .backend.spotify import Spotify
 from flask_cors import CORS
 from flask_caching import Cache
@@ -31,7 +35,6 @@ spotify = Spotify()
 api = Api(app)
 
 CORS(app)
-# app.config['SECRET_KEY'] = "secret_keyoidozinfoinoqifnoeinosifn"
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 
 
@@ -84,7 +87,7 @@ class GetToken(Resource):
 
 @api.route('/get-user')
 class ValidToken(Resource):
-    method_decorators = [valid_token]
+    method_decorators = [valid_token] #call decorator valid_token
     def get(self):
         user_information = spotify.get_user(
             session.get('baerer_token')

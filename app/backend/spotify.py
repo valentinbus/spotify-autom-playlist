@@ -65,6 +65,7 @@ class Spotify:
 
         content = json.loads(result.content.decode('UTF-8'))
         self.baerer_token = content.get('access_token') #use for all api request
+        print(self.baerer_token)
         return HOME_URL
 
 
@@ -80,7 +81,7 @@ class Spotify:
             url="https://api.spotify.com/v1/me/",
             headers=headers
         )
-
+        
         return result.json()
 
 

@@ -1,44 +1,47 @@
-from datetime import datetime
 from app import db
+from datetime import datetime
 
 
 class User(db.Model):
-    id = db.Column(db.String(100), primary_key=True)
-    playlist = db.Column(db.Integer, db.ForeignKey('playlist.id'))
+    id = db.Column(db.String(64), primary_key=True)
 
     def __repr__(self):
-        return '<User {}>'.format(self.id)
+        return '<User {}>'.format(self.id)   
 
 class Playlist(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100))
-    id_user = db.Column(db.String(100), db.ForeignKey('user.id'))
-    id_track = db.Column(db.Integer, db.ForeignKey('track.id'))
-    id_category = db.Column(db.Integer, db.ForeignKey('category.id'))
-
-    def __repr__(self):
-        return '<Playlist {}>'.format(self.name)
-        
-class Category(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100))
+    name = db.Column(db.String(140))
+    user_id = db.Column(db.String(64), db.ForeignKey('user.id'))
 
     def __repr__(self):
         return '<Playlist {}>'.format(self.name)
 
-class Category_Tracks(db.Model):
+class TrackPlaylist(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    id_track = db.Column(db.Integer, db.ForeignKey('track.id'))
-    id_category = db.Column(db.Integer, db.ForeignKey('category.id'))
+    playlist_id = db.Column(db.Integer, db.ForeignKey('playlist.id'))
+    track_id = db.Column(db.String(140), db.ForeignKey('track.id'))
+
+    def __repr__(self):
+        return '<TrackPlaylist {}>'.format(self.id)
 
 class Track(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100))
+    id = db.Column(db.String(140), primary_key=True)
+    name = db.Column(db.String(140))
 
     def __repr__(self):
-        return '<Playlist {}>'.format(self.name)
+        return '<Track {}>'.format(self.name)
 
-class Track_Playlist(db.Model):
+class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    id_track = db.Column(db.Integer, db.ForeignKey('track.id'))
-    id_playlist = db.Column(db.Integer, db.ForeignKey('playlist.id'))
+    name = db.Column(db.String(140))
+
+    def __repr__(self):
+        return '<Category {}>'.format(self.name)
+
+class CategoryTrack(db.Model):
+    id = db.Column(db.String(140), primary_key=True)
+    track_id = db.Column(db.String(140), db.ForeignKey('track.id'))
+    category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
+
+    def __repr__(self):
+        return '<CategoryTrack {}>'.format(self.name)
