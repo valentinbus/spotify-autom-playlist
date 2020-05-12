@@ -40,7 +40,7 @@ class Category(db.Model):
         return '<Category {}>'.format(self.name)
 
 class CategoryTrack(db.Model):
-    id = db.Column(db.String(140), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     track_id = db.Column(db.String(140), db.ForeignKey('track.id'))
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
 

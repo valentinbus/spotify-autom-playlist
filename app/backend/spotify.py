@@ -98,7 +98,6 @@ class Spotify:
             u = User(id=user_id)
             db.session.add(u)
             db.session.commit()
-            print('ok')
 
         self.user_id = user_id
 
@@ -199,19 +198,46 @@ class Spotify:
 
         tracks = db.session.query(Track).all()
         genres = list()
+        response = list()
 
         for track in tracks:
             result = requests.get(
             url=f"https://api.spotify.com/v1/artists/{track.artist}",
             headers=headers
-        )
-            genres.append(result.json().get('genres'))
+            )
 
-        print(genres)
-            
-        #pprint(result.json())
-        #category = result.json().get('genres')[0]
+            if result.json().get('genres'):
+                for category_name in result.json().get('genres'):
+                    if db.session.query(Category).filter_by(name=category_name).first() is None:
+                        cat = Category(name=category_name)
+                        db.session.add(cat)
+                        db.session.commit()
 
+                        category_id = db.session.query(Category).filter_by(name=category_name).first().id
+                        track_id = track.id
+
+                        category_track = CategoryTrack(track_id=track_id, category_id=category_id)
+                        db.session.add(category_track)
+                        db.session.commit()  
+                        response.append(
+                            {
+                                'category_id': category_id,
+                                'category_name': category_name
+                            }
+                        )
+                
+                    else:
+                        category = db.session.query(Category).filter_by(name=category_name).first()
+                        print(f"CATEGORY NAME:::{category.name}")
+                        response.append(
+                            {
+                                'category_id': category.id,
+                                'category_name': category.name
+                            }
+                        )
+
+        pprint(f"RESPONSE:::{response}")
+        return response
 
 
     def _init_first_playlist(self, token):
@@ -263,9 +289,10 @@ class Spotify:
         return response
 
 
-    def get_artist_from_track(self, id_tracks, token):
+    def _init_db(self, token):
         """
-        Get artist from a track id
+        Call all actions to init db
         """
-        pass
+        PASS
+
 
