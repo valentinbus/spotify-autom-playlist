@@ -188,9 +188,30 @@ class Spotify:
         """
         Use to create and associate category with tracks
         """
-        user_id = self.user_id
 
-        
+        user_id = self._get_user_id(token)
+        offset = 0
+
+        headers = {
+            'Authorization': token,
+        }
+
+
+        tracks = db.session.query(Track).all()
+        genres = list()
+
+        for track in tracks:
+            result = requests.get(
+            url=f"https://api.spotify.com/v1/artists/{track.artist}",
+            headers=headers
+        )
+            genres.append(result.json().get('genres'))
+
+        print(genres)
+            
+        #pprint(result.json())
+        #category = result.json().get('genres')[0]
+
 
 
     def _init_first_playlist(self, token):
@@ -205,6 +226,14 @@ class Spotify:
             playlist = Playlist(name="Loved Tracks", user_id=user_id)
             db.session.add(playlist)
             db.session.commit()
+
+            #Create all connections to TrackPlaylist Table
+            tracks = db.session.query(Track).all()
+            for track in tracks:
+                track_playlist = TrackPlaylist(playlist_id=playlist.id, track_id=track.id)
+                db.session.add(track_playlist)
+                db.session.commit()
+
             response =  {
                 'message': "Good !",
                 'playlist': {
@@ -220,6 +249,8 @@ class Spotify:
             tracks = db.session.query(Track).all()
             for track in tracks:
                 track_playlist = TrackPlaylist(playlist_id=playlist.id, track_id=track.id)
+                db.session.add(track_playlist)
+                db.session.commit()
 
 
             response = {
@@ -231,11 +262,7 @@ class Spotify:
             }
         return response
 
-        
-    # def _init_category(self, token):
-    #     """
-    #     Init Category
-    #     """
+
     def get_artist_from_track(self, id_tracks, token):
         """
         Get artist from a track id

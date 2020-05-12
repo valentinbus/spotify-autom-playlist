@@ -117,6 +117,13 @@ class GetTracks(Resource):
         response = spotify._init_first_playlist(session.get('baerer_token'))
         return jsonify(response)
 
+@api.route('/init-category')
+class GetTracks(Resource):
+    method_decorators = [valid_token]
+    def get(self):
+        response = spotify._init_category(session.get('baerer_token'))
+        return jsonify(response)
+
 
 @app.route('/test', methods=["GET"])
 def test():
