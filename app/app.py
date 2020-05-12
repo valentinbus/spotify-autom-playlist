@@ -31,7 +31,6 @@ from pprint import pprint
 logging.basicConfig(level=logging.DEBUG)
 spotify = Spotify()
 
-# app = Flask(__name__)
 api = Api(app)
 
 CORS(app)
@@ -56,9 +55,9 @@ def valid_token(f):
 
                 else:
                     return f()
-
-            except Exception as e:
-                logging.debug(f"EROR::::: {e}")
+            except AttributeError as e:
+                logging.debug(f"ERROR:::::{e}")
+                #return redirect('/authent')
         else:
             flash('You need to have a valid token')
             return redirect('/authent')
@@ -82,17 +81,18 @@ class GetToken(Resource):
         code = request.args.get('code')
         spotify._get_baerer_token(code)
         session['baerer_token'] = f'Bearer {spotify.baerer_token}'
+        print(session)
         return Response('Vous êtes connecté')
 
 
-@api.route('/get-user')
-class ValidToken(Resource):
-    method_decorators = [valid_token] #call decorator valid_token
-    def get(self):
-        user_information = spotify.get_user(
-            session.get('baerer_token')
-        )
-        return jsonify(user_information)
+# @api.route('/get-user')
+# class ValidToken(Resource):
+#     method_decorators = [valid_token] #call decorator valid_token
+#     def get(self):
+#         user_information = spotify._get_user(
+#             session.get('baerer_token')
+#         )
+#         return Response(user_information)
 
 
 @api.route('/get-tracks')
@@ -101,6 +101,21 @@ class GetTracks(Resource):
     def get(self):
         tracks = spotify.get_tracks(session.get('baerer_token'))
         return jsonify(tracks)
+
+@api.route('/get-loved-track-id')
+class GetTracks(Resource):
+    method_decorators = [valid_token]
+    def get(self):
+        tracks = spotify._get_loved_track_id(session.get('baerer_token'))
+        return jsonify(tracks)
+
+@api.route('/init-first-playlist')
+class GetTracks(Resource):
+    method_decorators = [valid_token]
+    def get(self):
+        response = spotify._init_first_playlist(session.get('baerer_token'))
+        return jsonify(response)
+
 
 @app.route('/test', methods=["GET"])
 def test():
