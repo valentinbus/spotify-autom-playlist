@@ -80,6 +80,7 @@ class GetToken(Resource):
     def get(self):
         code = request.args.get('code')
         spotify._get_baerer_token(code)
+        spotify._get_user_id(f'Bearer {spotify.baerer_token}')
         session['baerer_token'] = f'Bearer {spotify.baerer_token}'
         print(session)
         return Response('Vous êtes connecté')

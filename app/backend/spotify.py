@@ -92,12 +92,13 @@ class Spotify:
             headers=headers
         )
         user_id = result.json().get('id')
-
+        
         #Create User if not exist
-        if db.session.query(User).filter_by(id='valentinoiho') is None:
+        if db.session.query(User).filter_by(id='valentinoiho').first() is None:
             u = User(id=user_id)
             db.session.add(u)
             db.session.commit()
+            print('ok')
 
         self.user_id = user_id
 
@@ -167,20 +168,29 @@ class Spotify:
         response = list()
 
         for item in result.json().get('items'):
+
             track = {
                 'id': item.get('track').get('id'),
-                'name': item.get('track').get('name')
+                'name': item.get('track').get('name'),
+                'artist': item.get('track').get('artists')[0].get('id')
             }
+            response.append(track)
 
             #Create tracks if not exist
-            if db.session.query(Track).filter_by(id=track['id']) is None:
-                t = Track(id=track['id'], name=track['name'])
+            if db.session.query(Track).filter_by(id=track['id']).first() is None:
+                t = Track(id=track['id'], name=track['name'], artist=track['artist'])
                 db.session.add(t)
                 db.session.commit()
 
-            response.append(track)
-
         return response
+
+    def _init_category(self, token):
+        """
+        Use to create and associate category with tracks
+        """
+        user_id = self.user_id
+
+        
 
 
     def _init_first_playlist(self, token):
@@ -188,12 +198,15 @@ class Spotify:
         Use to create a playlist with all loved tracks to not call again spotify api
         """
         user_id = self._get_user_id(token)
+        print(db.session.query(Playlist).filter_by(user_id=user_id, name="Loved Tracks").first())
 
-        if db.session.query(Playlist).filter_by(user_id=user_id) and db.session.query(Playlist).filter_by(name="Loved Tracks"):
-            playlist = db.session.query(Playlist).filter_by(user_id=user_id, name='Loved Tracks').first()
-            print(playlist)
-            response = {
-                'message': "Playlist already exists",
+        if db.session.query(Playlist).filter_by(user_id=user_id, name="Loved Tracks").first() is None:
+            
+            playlist = Playlist(name="Loved Tracks", user_id=user_id)
+            db.session.add(playlist)
+            db.session.commit()
+            response =  {
+                'message': "Good !",
                 'playlist': {
                     'name': 'Loved Tracks',
                     'id': playlist.id
@@ -201,20 +214,28 @@ class Spotify:
             }
 
         else:
-            playlist = Playlist(name="Loved Tracks", user_id=user_id)
-            db.session.add(playlist)
-            db.session.commit()
+            playlist = db.session.query(Playlist).filter_by(user_id=user_id, name='Loved Tracks').first()
+
+            #Create all connections to TrackPlaylist Table
+            tracks = db.session.query(Track).all()
+            for track in tracks:
+                track_playlist = TrackPlaylist(playlist_id=playlist.id, track_id=track.id)
+
+
             response = {
-                'message': "Playlist creates",
+                'message': "Good !",
                 'playlist': {
                     'name': 'Loved Tracks',
                     'id': playlist.id
                 }
             }
-
         return response
-        
 
+        
+    # def _init_category(self, token):
+    #     """
+    #     Init Category
+    #     """
     def get_artist_from_track(self, id_tracks, token):
         """
         Get artist from a track id
