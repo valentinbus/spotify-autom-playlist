@@ -27,6 +27,7 @@ class TrackPlaylist(db.Model):
 class Track(db.Model):
     id = db.Column(db.String(140), primary_key=True)
     name = db.Column(db.String(140))
+    artist = db.Column(db.String(140))
 
     def __repr__(self):
         return '<Track {}>'.format(self.name)
