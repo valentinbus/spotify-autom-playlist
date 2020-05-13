@@ -155,7 +155,6 @@ class Spotify:
 
         params = {
             'limit': 50,
-            offset: offset
         }
         result = requests.get(
             url="https://api.spotify.com/v1/me/tracks",
@@ -163,22 +162,41 @@ class Spotify:
             params=params
         )
 
+        max_tracks = result.json().get('total')
         response = list()
 
-        for item in result.json().get('items'):
-
-            track = {
-                'id': item.get('track').get('id'),
-                'name': item.get('track').get('name'),
-                'artist': item.get('track').get('artists')[0].get('id')
+        while offset <= max_tracks:
+            params = {
+                'limit': 50,
+                offset: offset
             }
-            response.append(track)
+            result = requests.get(
+                url="https://api.spotify.com/v1/me/tracks",
+                headers=headers,
+                params={
+                    'limit': 50,
+                    'offset': offset
+                }
+            )
+            
+            offset+=50
 
-            #Create tracks if not exist
-            if db.session.query(Track).filter_by(id=track['id']).first() is None:
-                t = Track(id=track['id'], name=track['name'], artist=track['artist'])
-                db.session.add(t)
-                db.session.commit()
+            for item in result.json().get('items'):
+
+                track = {
+                    'id': item.get('track').get('id'),
+                    'name': item.get('track').get('name'),
+                    'artist': item.get('track').get('artists')[0].get('id')
+                }
+                print(track)
+                print(offset)
+                response.append(track)
+
+                #Create tracks if not exist
+                if db.session.query(Track).filter_by(id=track['id']).first() is None:
+                    t = Track(id=track['id'], name=track['name'], artist=track['artist'])
+                    db.session.add(t)
+                    db.session.commit()
 
         return response
 
@@ -188,7 +206,6 @@ class Spotify:
         """
 
         user_id = self._get_user_id(token)
-        offset = 0
 
         headers = {
             'Authorization': token,
@@ -249,7 +266,6 @@ class Spotify:
         Use to create a playlist with all loved tracks to not call again spotify api
         """
         user_id = self._get_user_id(token)
-        print(db.session.query(Playlist).filter_by(user_id=user_id, name="Loved Tracks").first())
 
         if db.session.query(Playlist).filter_by(user_id=user_id, name="Loved Tracks").first() is None:
             
@@ -293,6 +309,7 @@ class Spotify:
                 }
             }
         return response
+
 
     def init_db(self, token):
         """
