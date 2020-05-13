@@ -5,7 +5,7 @@ venv/
 
 *.pyc
 
-flask/zappa_settings.json
+app/zappa_settings.json
 
 cert.pem
 key.pem
