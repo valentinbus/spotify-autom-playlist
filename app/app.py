@@ -40,9 +40,11 @@ cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 def valid_token(f):
     @wraps(f) #util if we use multiple times this decorator
     def wrap(*args, **kwargs):
+        """
+        TODO try with session.get('baerer') is valid with request...
+        """
         if session.get('baerer_token'):
             try:
-
                 if isinstance(f().get_json(), list):
                     for element in f().get_json():
                         if element.get('error'):
@@ -52,7 +54,6 @@ def valid_token(f):
 
                 elif f().get_json().get('error'):
                     return redirect('/authent')
-
                 else:
                     return f()
             except AttributeError as e:
@@ -74,7 +75,6 @@ class authent(Resource):
     def get(self):
         return redirect(spotify._authorization_ulr())
 
-
 @api.route('/get-token')
 class GetToken(Resource):
     def get(self):
@@ -86,43 +86,29 @@ class GetToken(Resource):
         return Response('Vous êtes connecté')
 
 
-# @api.route('/get-user')
-# class ValidToken(Resource):
-#     method_decorators = [valid_token] #call decorator valid_token
-#     def get(self):
-#         user_information = spotify._get_user(
-#             session.get('baerer_token')
-#         )
-#         return Response(user_information)
+@api.route('/init-db')
+class GetTracks(Resource):
+    #method_decorators = [valid_token]
+    def get(self):
+        return jsonify(spotify.init_db(session.get('baerer_token')))
+
+@api.route('/init-category')
+class GetTracks(Resource):
+    #method_decorators = [valid_token]
+    def get(self):
+        return jsonify(spotify._init_category(session.get('baerer_token')))
 
 
 @api.route('/get-tracks')
 class GetTracks(Resource):
-    method_decorators = [valid_token]
     def get(self):
-        tracks = spotify.get_tracks(session.get('baerer_token'))
-        return jsonify(tracks)
+        return jsonify(spotify.get_tracks())
 
-@api.route('/get-loved-track-id')
-class GetTracks(Resource):
-    method_decorators = [valid_token]
-    def get(self):
-        tracks = spotify._get_loved_track_id(session.get('baerer_token'))
-        return jsonify(tracks)
 
-@api.route('/init-first-playlist')
+@api.route('/get-categories')
 class GetTracks(Resource):
-    method_decorators = [valid_token]
     def get(self):
-        response = spotify._init_first_playlist(session.get('baerer_token'))
-        return jsonify(response)
-
-@api.route('/init-category')
-class GetTracks(Resource):
-    method_decorators = [valid_token]
-    def get(self):
-        response = spotify._init_category(session.get('baerer_token'))
-        return jsonify(response)
+        return jsonify(spotify.get_categories())
 
 
 @app.route('/test', methods=["GET"])

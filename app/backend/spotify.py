@@ -206,6 +206,7 @@ class Spotify:
             )
 
             if result.json().get('genres'):
+                print(result.json().get('genres'))
                 for category_name in result.json().get('genres'):
                     if db.session.query(Category).filter_by(name=category_name).first() is None:
                         cat = Category(name=category_name)
@@ -215,16 +216,22 @@ class Spotify:
                         category_id = db.session.query(Category).filter_by(name=category_name).first().id
                         track_id = track.id
 
-                        category_track = CategoryTrack(track_id=track_id, category_id=category_id)
-                        db.session.add(category_track)
-                        db.session.commit()  
                         response.append(
                             {
                                 'category_id': category_id,
                                 'category_name': category_name
                             }
                         )
-                
+
+
+
+                    category_id = db.session.query(Category).filter_by(name=category_name).first().id
+                    track_id = track.id
+                    if db.session.query(CategoryTrack).filter_by(track_id=track_id, category_id=category_id).first() is None:
+                        category_track = CategoryTrack(track_id=track_id, category_id=category_id)
+                        db.session.add(category_track)
+                        db.session.commit()
+
                     else:
                         category = db.session.query(Category).filter_by(name=category_name).first()
                         print(f"CATEGORY NAME:::{category.name}")
@@ -235,7 +242,6 @@ class Spotify:
                             }
                         )
 
-        pprint(f"RESPONSE:::{response}")
         return response
 
     def _init_first_playlist(self, token):
@@ -254,10 +260,10 @@ class Spotify:
             #Create all connections to TrackPlaylist Table
             tracks = db.session.query(Track).all()
             for track in tracks:
-                
-                track_playlist = TrackPlaylist(playlist_id=playlist.id, track_id=track.id)
-                db.session.add(track_playlist)
-                db.session.commit()
+                if db.session.query(TrackPlaylist).filter_by(playlist_id=playlist.id, track_id=track.id).first() is None:
+                    track_playlist = TrackPlaylist(playlist_id=playlist.id, track_id=track.id)
+                    db.session.add(track_playlist)
+                    db.session.commit()
 
             response =  {
                 'message': "Good !",
@@ -273,9 +279,10 @@ class Spotify:
             #Create all connections to TrackPlaylist Table
             tracks = db.session.query(Track).all()
             for track in tracks:
-                track_playlist = TrackPlaylist(playlist_id=playlist.id, track_id=track.id)
-                db.session.add(track_playlist)
-                db.session.commit()
+                if db.session.query(TrackPlaylist).filter_by(playlist_id=playlist.id, track_id=track.id).first() is None:
+                    track_playlist = TrackPlaylist(playlist_id=playlist.id, track_id=track.id)
+                    db.session.add(track_playlist)
+                    db.session.commit()
 
 
             response = {
@@ -287,7 +294,7 @@ class Spotify:
             }
         return response
 
-    def _init_db(self, token):
+    def init_db(self, token):
         """
         Call all actions to init db
         """
