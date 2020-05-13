@@ -104,44 +104,43 @@ class Spotify:
         return user_id
 
 
-    def get_tracks(self, token):
-        """
-        Get liked tracks from user
-        """
-        offset = 0
+    # def get_tracks(self, token):
+    #     """
+    #     Get liked tracks from user
+    #     """
+    #     offset = 0
 
-        headers = {
-            'Authorization': token,
-        }
+    #     headers = {
+    #         'Authorization': token,
+    #     }
 
-        params = {
-            'limit': 50,
-            offset: offset
-        }
+    #     params = {
+    #         'limit': 50,
+    #         offset: offset
+    #     }
 
-        result = requests.get(
-            url="https://api.spotify.com/v1/me/tracks",
-            headers=headers,
-            params=params
-        )
+    #     result = requests.get(
+    #         url="https://api.spotify.com/v1/me/tracks",
+    #         headers=headers,
+    #         params=params
+    #     )
 
-        max_tracks = result.json().get('total')
-        print(f"max result {max_tracks}")
+    #     max_tracks = result.json().get('total')
+    #     print(f"max result {max_tracks}")
 
-        response = list()
-        while offset <= max_tracks: #TODO we have to replace 50 per max_tracks
-            print(offset)
-            response.append(
-                requests.get(
-                    url="https://api.spotify.com/v1/me/tracks",
-                    headers=headers,
-                    params=params
-                ).json()
-            )
-            offset+=50
+    #     response = list()
+    #     while offset <= max_tracks: #TODO we have to replace 50 per max_tracks
+    #         print(offset)
+    #         response.append(
+    #             requests.get(
+    #                 url="https://api.spotify.com/v1/me/tracks",
+    #                 headers=headers,
+    #                 params=params
+    #             ).json()
+    #         )
+    #         offset+=50
 
-        return response
-
+    #     return response
 
     def _get_loved_track_id(self, token):
         """
@@ -239,7 +238,6 @@ class Spotify:
         pprint(f"RESPONSE:::{response}")
         return response
 
-
     def _init_first_playlist(self, token):
         """
         Use to create a playlist with all loved tracks to not call again spotify api
@@ -256,6 +254,7 @@ class Spotify:
             #Create all connections to TrackPlaylist Table
             tracks = db.session.query(Track).all()
             for track in tracks:
+                
                 track_playlist = TrackPlaylist(playlist_id=playlist.id, track_id=track.id)
                 db.session.add(track_playlist)
                 db.session.commit()
@@ -288,11 +287,46 @@ class Spotify:
             }
         return response
 
-
     def _init_db(self, token):
         """
         Call all actions to init db
         """
-        PASS
+        self._get_loved_track_id(token)
+        self._init_first_playlist(token)
+        self._init_category(token)
+
+        return {'message': 'Db is iniatilise with first Playlist Loved Tracks'}
+
+    def get_tracks(self):
+        """
+        Get all loved tracks
+        """
+        response = list()
+
+        for track in db.session.query(Track).all():
+            response.append(
+                {
+                    'id': track.id,
+                    'name': track.name,
+                    'artist': track.artist
+                }
+            )
+        
+        return response
 
 
+    def get_categories(self):
+        """
+        Get all loved tracks
+        """
+        response = list()
+
+        for category in db.session.query(Category).all():
+            response.append(
+                {
+                    'id': category.id,
+                    'name': category.name
+                }
+            )
+
+        return response
