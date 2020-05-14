@@ -120,7 +120,30 @@ class GetCategories(Resource):
 class GetUser(Resource):
     method_decorators = [valid_token]
     def get(self):
+        """
+        Get basic user informations
+        """
         return jsonify(spotify.get_user(session.get('baerer_token')))
+
+
+@api.route('/get-suggest-playlist')
+class GetSuggestPlaylist(Resource):
+    def get(self):
+        return jsonify(spotify.suggest_playlist())
+
+
+@api.route('/create-playlist')
+class CreatePlaylist(Resource):
+    def get(self):
+        """
+        Create Playlist from user request
+        """
+        q = request.args.get("q")
+
+        if request.args.get("q"):
+            return jsonify(spotify.create_playlist(q))
+        else:
+            return Response("Il faut choisir une catégorie")
 
 
 @app.route('/test', methods=["GET"])

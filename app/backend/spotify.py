@@ -288,6 +288,7 @@ class Spotify:
 
         return {'message': 'Db is iniatilise with first Playlist Loved Tracks'}
 
+
     def get_tracks(self):
         """
         Get all loved tracks
@@ -322,6 +323,7 @@ class Spotify:
 
         return response
 
+
     def get_user(self, token):
         """
         Call all actions to init db
@@ -341,3 +343,56 @@ class Spotify:
         )
 
         return result.json()
+
+
+    def suggest_playlist(self):
+        """
+        Purpose category playlist based on categories that come up the most in the liked songs
+        """
+        # categories_tracks = CategoryTrack.query.all()
+
+        # db.session.query(CategoryTrack).filter()
+        # for category_track in categories_tracks:
+        #     print(category_track.id)
+        
+        ''' SELECT "category_id", COUNT("category_id") as "count"
+        FROM "category_track"
+        group by "category_id"
+        order by "count" desc;'''
+
+        response = {
+            'relevant_category': list()
+        }
+        #This query give us all most relevant category.id from loved track 
+        #playlist based on category track table
+        query = (db.session.query(
+            CategoryTrack.category_id, 
+            db.func.count(CategoryTrack.category_id).label('count'))
+            .group_by(
+                CategoryTrack.category_id)
+            .order_by(
+                db.func.count(CategoryTrack.category_id).desc())
+            .limit(10)
+            .all()
+        )
+        #This give us cateogry name from previous request
+        for element in query:
+            print(element[0])
+            query = (db.session.query(Category.name)
+            .filter_by(id=element[0])
+            )
+
+            response['relevant_category'].append(
+                {'name': element[0] for element in query}
+            )
+
+        return response
+
+
+    def create_playlist(self, q):
+        """
+        Create playlist for user request
+        """
+        print(q)
+
+        return {"cat choisie": q}
