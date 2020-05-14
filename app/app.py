@@ -43,7 +43,7 @@ def valid_token(f):
         TODO try with session.get('baerer') is valid with request...
         """
         if session.get('baerer_token') and session.get('baerer_token') != "Bearer None":
-            logging.info("ICI:::In decorator")
+            logging.info("In decorator")
             if isinstance(f().get_json(), list):
                 for element in f().get_json():
                     if (
@@ -58,12 +58,6 @@ def valid_token(f):
             logging.debug('You need to have a valid token')
             return redirect('/authent')
     return wrap
-
-
-@api.route('/home')
-class home(Resource):
-    def get(self):
-        return Response("Bienvenue")
 
 
 @api.route('/authent')
@@ -134,6 +128,7 @@ class GetSuggestPlaylist(Resource):
 
 @api.route('/create-playlist')
 class CreatePlaylist(Resource):
+    #method_decorators = [valid_token]
     def get(self):
         """
         Create Playlist from user request
@@ -141,14 +136,15 @@ class CreatePlaylist(Resource):
         q = request.args.get("q")
 
         if request.args.get("q"):
-            return jsonify(spotify.create_playlist(q))
+            return jsonify(spotify.create_playlist(q, session.get('baerer_token')))
         else:
-            return Response("Il faut choisir une catégorie")
+            return Response("No category chosen")
 
 
 @app.route('/test', methods=["GET"])
 def test():
-    return render_template("test.html")
+    response = spotify.add_track(session.get('baerer_token'), "indie soul")
+    return response
 
 
 if __name__ == '__main__':

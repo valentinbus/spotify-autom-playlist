@@ -418,7 +418,29 @@ class Spotify:
         """
         Add track to playlist
         """
-        
+        category_id = db.session.query(Category).filter_by(name=playlist_name).first().id
+        playlist_id = db.session.query(Playlist).filter_by(name=playlist_name).first().id
+
+        print(playlist_id)
+        query = db.session.query(CategoryTrack.track_id).filter_by(category_id=category_id)
+
+        #Add tracks to DB
+        for track_id in query:
+            if db.session.query(TrackPlaylist).filter_by(playlist_id=playlist_id, track_id=track_id[0]).first() is None:
+                category_track = TrackPlaylist(playlist_id=playlist_id, track_id=track_id)
+                db.session.add(category_track)
+                db.session.commit()
+
+        #Add tracks to spotify playlist
+        for track_id in query:
+            headers = {
+                'Authorization': token,
+            }
+            uris = f"spotify:track:{track_id[0]}"
+
+
+
+        return {'ok': 'super'}
 
     def create_playlist(self, q, token):
         """
