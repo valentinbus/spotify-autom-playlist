@@ -86,13 +86,16 @@ class Spotify:
         headers = {
             'Authorization': token,
         }
+
         print(f"HEADERS:::{headers}")
+
         result = requests.get(
             url="https://api.spotify.com/v1/me/",
             headers=headers
         )
+
         user_id = result.json().get('id')
-        
+
         #Create User if not exist
         if db.session.query(User).filter_by(id='valentinoiho').first() is None:
             u = User(id=user_id)
@@ -104,49 +107,12 @@ class Spotify:
         return user_id
 
 
-    # def get_tracks(self, token):
-    #     """
-    #     Get liked tracks from user
-    #     """
-    #     offset = 0
-
-    #     headers = {
-    #         'Authorization': token,
-    #     }
-
-    #     params = {
-    #         'limit': 50,
-    #         offset: offset
-    #     }
-
-    #     result = requests.get(
-    #         url="https://api.spotify.com/v1/me/tracks",
-    #         headers=headers,
-    #         params=params
-    #     )
-
-    #     max_tracks = result.json().get('total')
-    #     print(f"max result {max_tracks}")
-
-    #     response = list()
-    #     while offset <= max_tracks: #TODO we have to replace 50 per max_tracks
-    #         print(offset)
-    #         response.append(
-    #             requests.get(
-    #                 url="https://api.spotify.com/v1/me/tracks",
-    #                 headers=headers,
-    #                 params=params
-    #             ).json()
-    #         )
-    #         offset+=50
-
-    #     return response
-
-    def _get_loved_track_id(self, token):
+    def _init_loved_track(self, token):
         """
         Get liked tracks from user
         """
-        user_id = self._get_user_id(token)
+        user_id = self.user_id
+
         offset = 0
 
         headers = {
@@ -200,17 +166,16 @@ class Spotify:
 
         return response
 
+
     def _init_category(self, token):
         """
         Use to create and associate category with tracks
         """
-
-        user_id = self._get_user_id(token)
+        user_id = self.user_id
 
         headers = {
             'Authorization': token,
         }
-
 
         tracks = db.session.query(Track).all()
         genres = list()
@@ -261,11 +226,12 @@ class Spotify:
 
         return response
 
+
     def _init_first_playlist(self, token):
         """
         Use to create a playlist with all loved tracks to not call again spotify api
         """
-        user_id = self._get_user_id(token)
+        user_id = self.user_id
 
         if db.session.query(Playlist).filter_by(user_id=user_id, name="Loved Tracks").first() is None:
             
@@ -315,7 +281,8 @@ class Spotify:
         """
         Call all actions to init db
         """
-        self._get_loved_track_id(token)
+        self._get_user_id(token)
+        self._init_loved_track(token)
         self._init_first_playlist(token)
         self._init_category(token)
 
@@ -354,3 +321,23 @@ class Spotify:
             )
 
         return response
+
+    def get_user(self, token):
+        """
+        Call all actions to init db
+        """
+
+        headers = {
+            'Authorization': token,
+        }
+
+        params = {
+            'limit': 50,
+        }
+        result = requests.get(
+            url="https://api.spotify.com/v1/me/",
+            headers=headers,
+            params=params
+        )
+
+        return result.json()
