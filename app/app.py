@@ -36,33 +36,29 @@ api = Api(app)
 CORS(app)
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 
-
 def valid_token(f):
     @wraps(f) #util if we use multiple times this decorator
     def wrap(*args, **kwargs):
         """
         TODO try with session.get('baerer') is valid with request...
         """
-        if session.get('baerer_token'):
-            try:
-                if isinstance(f().get_json(), list):
-                    for element in f().get_json():
-                        if element.get('error'):
-                            return redirect('/authent')
-                        else:
-                            return f()
-
-                elif f().get_json().get('error'):
-                    return redirect('/authent')
-                else:
-                    return f()
-            except AttributeError as e:
-                logging.debug(f"ERROR:::::{e}")
-                #return redirect('/authent')
+        if session.get('baerer_token') and session.get('baerer_token') != "Bearer None":
+            logging.info("ICI:::In decorator")
+            if isinstance(f().get_json(), list):
+                for element in f().get_json():
+                    if (
+                        element.get('error').get('message') == "No token provided" or
+                        element.get('error').get('message') == "Only valid bearer authentication supported" or
+                        element.get('error').get('message') == "The access token expired"
+                    ):
+                        return redirect('/authent')        
+            else:
+                return f()
         else:
-            flash('You need to have a valid token')
+            logging.debug('You need to have a valid token')
             return redirect('/authent')
     return wrap
+
 
 @api.route('/home')
 class home(Resource):
@@ -74,6 +70,7 @@ class home(Resource):
 class authent(Resource):
     def get(self):
         return redirect(spotify._authorization_ulr())
+
 
 @api.route('/get-token')
 class GetToken(Resource):
@@ -87,40 +84,48 @@ class GetToken(Resource):
 
 
 @api.route('/init-db')
-class GetTracks(Resource):
-    #method_decorators = [valid_token]
+class InitDb(Resource):
+    method_decorators = [valid_token]
     def get(self):
+        """
+        Call different method to init DB
+        All loved tracks from authenticate user
+        Init 'Loved Tracks' Playlist with all loved tracks to improve speed for next actions
+        Init all categories based on tracks. Only solution was to get categories from artist
+        because Spotify API do not give genres by tracks
+        Init all relation table
+        """
         return jsonify(spotify.init_db(session.get('baerer_token')))
-
-@api.route('/init-category')
-class GetTracks(Resource):
-    #method_decorators = [valid_token]
-    def get(self):
-        return jsonify(spotify._init_category(session.get('baerer_token')))
 
 
 @api.route('/get-tracks')
 class GetTracks(Resource):
     def get(self):
+        """
+        Get all tracks from authenticate user
+        """
         return jsonify(spotify.get_tracks())
 
 
 @api.route('/get-categories')
-class GetTracks(Resource):
+class GetCategories(Resource):
     def get(self):
+        """
+        Get all categories from authenticate user
+        """
         return jsonify(spotify.get_categories())
+
+
+@api.route('/get-user')
+class GetUser(Resource):
+    method_decorators = [valid_token]
+    def get(self):
+        return jsonify(spotify.get_user(session.get('baerer_token')))
 
 
 @app.route('/test', methods=["GET"])
 def test():
     return render_template("test.html")
-
-
-# @api.route('/get-cache', methods=["GET"])
-# class GetCache(Resource):
-#     method_decorators = [valid_token]
-#     def get(self):
-#         return get_tracks()
 
 
 if __name__ == '__main__':
