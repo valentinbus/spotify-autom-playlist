@@ -24,7 +24,14 @@ API_TOKEN_URL = "https://accounts.spotify.com/api/token"
 
 HOME_URL = os.getenv('HOME_URL')
 URL = "https://accounts.spotify.com/authorize"
-SCOPE_AUTHORIZATION = ['user-library-read', 'user-library-modify'] #see this url for more information ==> https://developer.spotify.com/documentation/general/guides/scopes/
+#see this url for more information ==> https://developer.spotify.com/documentation/general/guides/scopes/
+SCOPE_AUTHORIZATION = (
+    "user-read-private "
+    "user-library-read "
+    "user-library-modify "
+    "playlist-modify-private "
+    "playlist-modify-public"
+)
 REDIRECT_URL = os.getenv('REDIRECT_URL')
 
 class Spotify:
@@ -37,6 +44,7 @@ class Spotify:
         """
         Give url for user authorization
         """
+        print(SCOPE_AUTHORIZATION)
         data = {
             'redirect_uri': REDIRECT_URL,
             'client_id': CLIENT_ID,
@@ -349,20 +357,10 @@ class Spotify:
         """
         Purpose category playlist based on categories that come up the most in the liked songs
         """
-        # categories_tracks = CategoryTrack.query.all()
-
-        # db.session.query(CategoryTrack).filter()
-        # for category_track in categories_tracks:
-        #     print(category_track.id)
-        
-        ''' SELECT "category_id", COUNT("category_id") as "count"
-        FROM "category_track"
-        group by "category_id"
-        order by "count" desc;'''
-
         response = {
             'relevant_category': list()
         }
+
         #This query give us all most relevant category.id from loved track 
         #playlist based on category track table
         query = (db.session.query(
@@ -375,6 +373,7 @@ class Spotify:
             .limit(10)
             .all()
         )
+
         #This give us cateogry name from previous request
         for element in query:
             print(element[0])
@@ -388,11 +387,79 @@ class Spotify:
 
         return response
 
+    def check_existing_playlist(self, token, playlist_name):
+        """
+        Check if a playlist exist on spotify account
+        TODO it works but I think there is a delay between playlist creation
+        and when it appears on spotify so does not well
+        """
+        headers = {
+            'Authorization': token,
+        }
 
-    def create_playlist(self, q):
+        params = {
+            'limit': 50
+        }
+
+        url = "https://api.spotify.com/v1/me/playlists"
+
+        result = requests.get(
+            headers=headers,
+            url=url
+        )
+
+        for item in result.json().get('items'):
+            if item.get('name') == playlist_name:
+                return False
+        return True
+
+
+    def add_track(self, token, playlist_name):
+        """
+        Add track to playlist
+        """
+        
+
+    def create_playlist(self, q, token):
         """
         Create playlist for user request
         """
-        print(q)
+        if self.user_id:
+            user_id = self.user_id
+        else:
+            user_id = self._get_user_id(token)
 
-        return {"cat choisie": q}
+        if q.isdigit():
+            playlist_name = db.session.query(Category).filter_by(id=q).first().name
+            if self.check_existing_playlist(token, playlist_name):
+                headers = {
+                    'Authorization': token,
+                }
+
+                data = {
+                    "name": playlist_name,
+                    "description": f"Your favorite order by {playlist_name} category",
+                    "public": False
+                }
+
+                result = requests.post(
+                    url=f"https://api.spotify.com/v1/users/{user_id}/playlists",
+                    headers=headers,
+                    data=json.dumps(data)
+                )
+
+                if db.session.query(Playlist).filter_by(name=playlist_name).first() is None:
+                    playlist = Playlist(name=playlist_name, user_id=user_id)
+                    db.session.add(playlist)
+                    db.session.commit()
+
+                return result.json()
+
+            else:
+                return {
+                    "message": "playlist already exists"
+                }
+        else:
+            return {
+                "message": "You have to choose an existing category"
+            }
