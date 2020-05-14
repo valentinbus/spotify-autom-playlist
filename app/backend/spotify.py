@@ -377,13 +377,16 @@ class Spotify:
         #This give us cateogry name from previous request
         for element in query:
             print(element[0])
-            query = (db.session.query(Category.name)
+            query = (db.session.query(Category.name, Category.id)
             .filter_by(id=element[0])
             )
-
-            response['relevant_category'].append(
-                {'name': element[0] for element in query}
-            )
+            
+            for element in query:
+                d = {
+                    "name": element[0],
+                    "id": element[1]
+                }
+                response['relevant_category'].append(d)
 
         return response
 
