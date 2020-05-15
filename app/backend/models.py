@@ -12,6 +12,7 @@ class Playlist(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(140))
     user_id = db.Column(db.String(64), db.ForeignKey('user.id'))
+    spotify_id = db.Column(db.String(140))
 
     def __repr__(self):
         return '<Playlist {}>'.format(self.name)
