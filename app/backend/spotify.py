@@ -289,12 +289,16 @@ class Spotify:
         """
         Call all actions to init db
         """
-        self._get_user_id(token)
-        self._init_loved_track(token)
-        self._init_first_playlist(token)
-        self._init_category(token)
+        if Playlist.query.get(1) is None:
+            self._get_user_id(token)
+            self._init_loved_track(token)
+            self._init_first_playlist(token)
+            self._init_category(token)
 
-        return {'message': 'Db is iniatilise with first Playlist Loved Tracks'}
+            return {'message': 'Db is iniatilise with first Playlist Loved Tracks'}
+        
+        else:
+            return {'message': 'Db already init'}
 
 
     def get_tracks(self):
@@ -326,6 +330,26 @@ class Spotify:
                 {
                     'id': category.id,
                     'name': category.name
+                }
+            )
+
+        return response
+
+
+    def get_playlist(self):
+        """
+        Get Playlist based on Loved Tracks
+        """
+        response = list()
+
+        playlists = Playlist.query.all()
+
+        for playlist in playlists:
+            response.append(
+                {
+                    "playlist_name": playlist.name,
+                    "playlist_id": playlist.id,
+                    "spotify_id": playlist.spotify_id
                 }
             )
 
@@ -415,16 +439,12 @@ class Spotify:
         pprint(result.json())
         for item in result.json().get('items'):
             #If playlist exists return false
-            print(playlist_name)
-
             if item.get('name') == playlist_name:
-                print('JE SUIS ICIIIIII')
                 return {
                     "response": False,
                     "playlist_name": playlist_name,
                     "playlist_id": item.get('id')
                 }
-        print('JE SUIS LAAAA')
         #TODO Ce n'est pas ordonné il faut donc que je retourne la bonne valeur, ici je retourne toujours la même playlist
         return {
             "response": True,
@@ -501,7 +521,7 @@ class Spotify:
                 )
 
                 if db.session.query(Playlist).filter_by(name=playlist_name).first() is None:
-                    playlist = Playlist(name=playlist_name, user_id=user_id)
+                    playlist = Playlist(name=playlist_name, user_id=user_id, spotify_id=result.json().get('id'))
                     db.session.add(playlist)
                     db.session.commit()
 
