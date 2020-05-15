@@ -285,6 +285,48 @@ class Spotify:
         return response
 
 
+    def _add_track(self, token, playlist_name, playlist_id):
+        """
+        Add track to playlist
+        """
+        category_id = db.session.query(Category).filter_by(name=playlist_name).first().id
+        playlist_id_db = db.session.query(Playlist).filter_by(name=playlist_name).first().id
+
+        query = db.session.query(CategoryTrack.track_id).filter_by(category_id=category_id)
+
+        #Add tracks to DB
+        list_track_id = list()
+
+        for track_id in query:
+            if db.session.query(TrackPlaylist).filter_by(playlist_id=playlist_id_db, track_id=track_id[0]).first() is None:
+                category_track = TrackPlaylist(playlist_id=playlist_id_db, track_id=track_id)
+                db.session.add(category_track)
+                db.session.commit()
+            
+            list_track_id.append(track_id[0])
+
+        #Add tracks to spotify playlist
+        i = 0
+        while i <= len(list_track_id): #have to do this because if URI is too long request return 414
+            headers = {
+                'Authorization': token,
+            }
+            url = f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks"
+            params = {
+                'uris': ",".join([f"spotify:track:{element}" for element in list_track_id[i:i+50:]])
+            }
+
+            result = requests.post(
+                headers=headers,
+                params=params,
+                url=url
+            )
+            print(f"RESULT:::{result.json()}")
+
+            i+=50
+        return {'ok': 'super'}
+
+
     def init_db(self, token):
         """
         Call all actions to init db
@@ -415,82 +457,6 @@ class Spotify:
         return response
 
 
-    def _check_existing_playlist(self, token, playlist_name):
-        """
-        Check if a playlist exist on spotify account
-        TODO it works but I think there is a delay between playlist creation
-        and when it appears on spotify so does not well
-        """
-        headers = {
-            'Authorization': token,
-        }
-
-        params = {
-            'limit': 50
-        }
-
-        url = "https://api.spotify.com/v1/me/playlists"
-
-        result = requests.get(
-            headers=headers,
-            url=url
-        )
-
-        pprint(result.json())
-        for item in result.json().get('items'):
-            #If playlist exists return false
-            if item.get('name') == playlist_name:
-                return {
-                    "response": False,
-                    "playlist_name": playlist_name,
-                    "playlist_id": item.get('id')
-                }
-        #TODO Ce n'est pas ordonné il faut donc que je retourne la bonne valeur, ici je retourne toujours la même playlist
-        return {
-            "response": True,
-            "playlist_name": playlist_name,
-            "playlist_id": "Does not exist yet"
-        }
-
-
-    def _add_track(self, token, playlist_name, playlist_id):
-        """
-        Add track to playlist
-        """
-        category_id = db.session.query(Category).filter_by(name=playlist_name).first().id
-        playlist_id_db = db.session.query(Playlist).filter_by(name=playlist_name).first().id
-
-        query = db.session.query(CategoryTrack.track_id).filter_by(category_id=category_id)
-
-        #Add tracks to DB
-        list_track_id = list()
-
-        for track_id in query:
-            if db.session.query(TrackPlaylist).filter_by(playlist_id=playlist_id_db, track_id=track_id[0]).first() is None:
-                category_track = TrackPlaylist(playlist_id=playlist_id_db, track_id=track_id)
-                db.session.add(category_track)
-                db.session.commit()
-            
-            list_track_id.append(track_id[0])
-
-        #Add tracks to spotify playlist
-        headers = {
-            'Authorization': token,
-        }
-        url = f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks"
-        params = {
-            'uris': ",".join([f"spotify:track:{element}" for element in list_track_id])
-        }
-
-        result = requests.post(
-            headers=headers,
-            params=params,
-            url=url
-        )
-        print(f"RESULT:::{result.json()}")
-        return {'ok': 'super'}
-
-
     def create_playlist(self, q, token):
         """
         Create playlist for user request
@@ -500,10 +466,9 @@ class Spotify:
         else:
             user_id = self._get_user_id(token)
 
-        if q.isdigit():
+        if q.isdigit() and db.session.query(Category).filter_by(id=q).first() is not None:
             playlist_name = db.session.query(Category).filter_by(id=q).first().name
-            check_playlist = self._check_existing_playlist(token, playlist_name)
-            if check_playlist.get('response'):
+            if db.session.query(Playlist).filter_by(name=playlist_name).first() is None:
                 headers = {
                     'Authorization': token,
                 }
@@ -525,9 +490,13 @@ class Spotify:
                     db.session.add(playlist)
                     db.session.commit()
 
-                print(f"PLAYLIST ID {result.json().get('id')}")
                 self._add_track(token, playlist_name, result.json().get('id'))
-                return result.json()
+                #return result.json()
+                return {
+                    "message": "playlist is create",
+                    "playlist_name": playlist_name,
+                    "playlist_id": result.json().get('id')
+                }
 
             else:
                 return {
@@ -537,3 +506,48 @@ class Spotify:
             return {
                 "message": "You have to choose an existing category"
             }
+
+
+
+
+
+
+
+
+
+    # def _check_existing_playlist(self, token, playlist_name):
+    #     """
+    #     Check if a playlist exist on spotify account
+    #     TODO it works but I think there is a delay between playlist creation
+    #     and when it appears on spotify so does not well
+    #     """
+    #     headers = {
+    #         'Authorization': token,
+    #     }
+
+    #     params = {
+    #         'limit': 50
+    #     }
+
+    #     url = "https://api.spotify.com/v1/me/playlists"
+
+    #     result = requests.get(
+    #         headers=headers,
+    #         url=url
+    #     )
+
+    #     pprint(result.json())
+    #     for item in result.json().get('items'):
+    #         #If playlist exists return false
+    #         if item.get('name') == playlist_name:
+    #             return {
+    #                 "response": False,
+    #                 "playlist_name": playlist_name,
+    #                 "playlist_id": item.get('id')
+    #             }
+    #     #TODO Ce n'est pas ordonné il faut donc que je retourne la bonne valeur, ici je retourne toujours la même playlist
+    #     return {
+    #         "response": True,
+    #         "playlist_name": playlist_name,
+    #         "playlist_id": "Does not exist yet"
+    #     }
