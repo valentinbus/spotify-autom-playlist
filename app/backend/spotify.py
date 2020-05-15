@@ -390,7 +390,8 @@ class Spotify:
 
         return response
 
-    def check_existing_playlist(self, token, playlist_name):
+
+    def _check_existing_playlist(self, token, playlist_name):
         """
         Check if a playlist exist on spotify account
         TODO it works but I think there is a delay between playlist creation
@@ -411,39 +412,64 @@ class Spotify:
             url=url
         )
 
+        pprint(result.json())
         for item in result.json().get('items'):
+            #If playlist exists return false
+            print(playlist_name)
+
             if item.get('name') == playlist_name:
-                return False
-        return True
+                print('JE SUIS ICIIIIII')
+                return {
+                    "response": False,
+                    "playlist_name": playlist_name,
+                    "playlist_id": item.get('id')
+                }
+        print('JE SUIS LAAAA')
+        #TODO Ce n'est pas ordonné il faut donc que je retourne la bonne valeur, ici je retourne toujours la même playlist
+        return {
+            "response": True,
+            "playlist_name": playlist_name,
+            "playlist_id": "Does not exist yet"
+        }
 
 
-    def add_track(self, token, playlist_name):
+    def _add_track(self, token, playlist_name, playlist_id):
         """
         Add track to playlist
         """
         category_id = db.session.query(Category).filter_by(name=playlist_name).first().id
-        playlist_id = db.session.query(Playlist).filter_by(name=playlist_name).first().id
+        playlist_id_db = db.session.query(Playlist).filter_by(name=playlist_name).first().id
 
-        print(playlist_id)
         query = db.session.query(CategoryTrack.track_id).filter_by(category_id=category_id)
 
         #Add tracks to DB
+        list_track_id = list()
+
         for track_id in query:
-            if db.session.query(TrackPlaylist).filter_by(playlist_id=playlist_id, track_id=track_id[0]).first() is None:
-                category_track = TrackPlaylist(playlist_id=playlist_id, track_id=track_id)
+            if db.session.query(TrackPlaylist).filter_by(playlist_id=playlist_id_db, track_id=track_id[0]).first() is None:
+                category_track = TrackPlaylist(playlist_id=playlist_id_db, track_id=track_id)
                 db.session.add(category_track)
                 db.session.commit()
+            
+            list_track_id.append(track_id[0])
 
         #Add tracks to spotify playlist
-        for track_id in query:
-            headers = {
-                'Authorization': token,
-            }
-            uris = f"spotify:track:{track_id[0]}"
+        headers = {
+            'Authorization': token,
+        }
+        url = f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks"
+        params = {
+            'uris': ",".join([f"spotify:track:{element}" for element in list_track_id])
+        }
 
-
-
+        result = requests.post(
+            headers=headers,
+            params=params,
+            url=url
+        )
+        print(f"RESULT:::{result.json()}")
         return {'ok': 'super'}
+
 
     def create_playlist(self, q, token):
         """
@@ -456,14 +482,15 @@ class Spotify:
 
         if q.isdigit():
             playlist_name = db.session.query(Category).filter_by(id=q).first().name
-            if self.check_existing_playlist(token, playlist_name):
+            check_playlist = self._check_existing_playlist(token, playlist_name)
+            if check_playlist.get('response'):
                 headers = {
                     'Authorization': token,
                 }
 
                 data = {
                     "name": playlist_name,
-                    "description": f"Your favorite order by {playlist_name} category",
+                    "description": f"Your favorite {playlist_name} tracks",
                     "public": False
                 }
 
@@ -478,6 +505,8 @@ class Spotify:
                     db.session.add(playlist)
                     db.session.commit()
 
+                print(f"PLAYLIST ID {result.json().get('id')}")
+                self._add_track(token, playlist_name, result.json().get('id'))
                 return result.json()
 
             else:
