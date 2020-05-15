@@ -53,7 +53,7 @@ def valid_token(f):
                     ):
                         return redirect('/authent')        
             else:
-                return f()
+                return None
         else:
             logging.debug('You need to have a valid token')
             return redirect('/authent')
@@ -128,7 +128,7 @@ class GetSuggestPlaylist(Resource):
 
 @api.route('/create-playlist')
 class CreatePlaylist(Resource):
-    #method_decorators = [valid_token]
+    method_decorators = [valid_token]
     def get(self):
         """
         Create Playlist from user request
@@ -143,8 +143,13 @@ class CreatePlaylist(Resource):
 
 @app.route('/test', methods=["GET"])
 def test():
-    response = spotify.add_track(session.get('baerer_token'), "indie soul")
+    response = spotify._add_track(session.get('baerer_token'), "indie soul", "3AU7oQvydkw7xtCKw8Zwsc")
     return response
+
+# @app.route('/test', methods=["GET"])
+# def test():
+#     response = spotify._check_existing_playlist(session.get('baerer_token'), "indie soul")
+#     return response
 
 
 if __name__ == '__main__':
