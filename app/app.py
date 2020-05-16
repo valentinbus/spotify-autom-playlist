@@ -173,7 +173,20 @@ def presentation():
     """
     Presentation page to introduce user to this project
     """
-    return render_template("presentation.html")
+    return render_template("presentation.html", d=[
+        {
+            "playlist_name": "indie soul"
+        },
+        {
+            "playlist_name": "rock"
+        },
+        {
+            "playlist_name": "indie rock"
+        },
+        {
+            "playlist_name": "flamenco"
+        },
+        ])
 
 
 @app.route('/show-suggest-playlist', methods=['GET'])
