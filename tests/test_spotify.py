@@ -1,6 +1,6 @@
 import pytest
 
-from flask.backend.spotify import Spotify
+from app.backend.spotify import Spotify
 
 spotify = Spotify()
 d = {
