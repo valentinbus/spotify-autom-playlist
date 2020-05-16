@@ -64,7 +64,6 @@ class Spotify:
         """
 
         b64 = base64.b64encode(f"{CLIENT_ID}:{CLIENT_SECRET}".encode('UTF-8'))
-        logging.info(f'Basic {b64}')
 
         headers = {
             'Authorization': f'Basic {b64.decode("UTF-8")}',
@@ -105,7 +104,7 @@ class Spotify:
         user_id = result.json().get('id')
 
         #Create User if not exist
-        if db.session.query(User).filter_by(id='valentinoiho').first() is None:
+        if db.session.query(User).filter_by(id='valentinoiho').first() is None and user_id is not None:
             u = User(id=user_id)
             db.session.add(u)
             db.session.commit()
@@ -331,14 +330,24 @@ class Spotify:
         """
         Call all actions to init db
         """
-        if Playlist.query.get(1) is None:
+        #:
+        user_id = self._get_user_id(token)
+
+        if user_id is None:
+            return [{
+                "error": {
+                    "message": "The access token expired"
+                }
+            }]
+
+        elif db.session.query(Playlist).filter_by(user_id=user_id, name="Loved Tracks").first() is None:
             self._get_user_id(token)
             self._init_loved_track(token)
             self._init_first_playlist(token)
             self._init_category(token)
 
             return {'message': 'Db is iniatilise with first Playlist Loved Tracks'}
-        
+    
         else:
             return {'message': 'Db already init'}
 
@@ -508,7 +517,7 @@ class Spotify:
             }
 
 
-
+#TODO add all delete and update/sync methods
 
 
 
