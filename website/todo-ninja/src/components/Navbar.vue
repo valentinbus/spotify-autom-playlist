@@ -60,7 +60,7 @@ export default {
       links: [
         { text: 'Dashboard', route: '/' },
         { text: 'My Projects', route: '/projects' },
-        { text: 'Presentation', route: '/presentation' }
+        { text: 'CreatePlaylist', route: '/createplaylist' }
       ],
       snackbar: false
     }
@@ -69,5 +69,4 @@ export default {
 </script>
 
 <style>
-
 </style>
