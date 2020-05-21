@@ -50,7 +50,7 @@ export default {
           title: this.title,
           content: this.content,
           due: format(this.due, 'Do MMM YYYY'),
-          person: 'The Net Ninja',
+          person: 'valentinoiho',
           status: 'ongoing'
         }
         db.collection('projects').add(project).then(() => {
