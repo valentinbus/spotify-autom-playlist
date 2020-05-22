@@ -78,8 +78,9 @@ class GetToken(Resource):
     def get(self):
         code = request.args.get('code')
         spotify._get_baerer_token(code)
-        spotify._get_user_id(f'Bearer {spotify.baerer_token}')
+        user_id = spotify._get_user_id(f'Bearer {spotify.baerer_token}')
         session['baerer_token'] = f'Bearer {spotify.baerer_token}'
+        session['user_id'] = user_id
         logging.info(session)
         return Response('Vous êtes connecté')
 
@@ -100,6 +101,19 @@ class InitDb(Resource):
         #return jsonify(spotify.init_db(session.get('baerer_token')))
         return jsonify(spotify.init_db(session.get('baerer_token')))
 
+    def put(self):
+        """
+        Call different method to init DB
+        All loved tracks from authenticate user
+        Init 'Loved Tracks' Playlist with all loved tracks to improve speed for next actions
+        Init all categories based on tracks. Only solution was to get categories from artist
+        because Spotify API do not give genres by tracks
+        Init all relation table
+        """
+        #print(spotify.init_db(session.get('baerer_token')))
+        #return jsonify(spotify.init_db(session.get('baerer_token')))
+        return jsonify(spotify.init_db(session.get('baerer_token')))
+
 
 @api.route('/get-tracks')
 class GetTracks(Resource):
@@ -107,7 +121,7 @@ class GetTracks(Resource):
         """
         Get all tracks from authenticate user
         """
-        return jsonify(spotify.get_tracks())
+        return jsonify(spotify.get_tracks(session['user_id']))
 
 
 @api.route('/get-categories')
@@ -116,7 +130,7 @@ class GetCategories(Resource):
         """
         Get all categories from authenticate user
         """
-        return jsonify(spotify.get_categories())
+        return jsonify(spotify.get_categories(session['user_id']))
 
 
 @api.route('/get-playlist')
@@ -125,17 +139,16 @@ class GetCategories(Resource):
         """
         Get all playlist from authenticate user
         """
-        return jsonify(spotify.get_playlist())
+        return jsonify(spotify.get_playlist(session['user_id']))
 
 
 @api.route('/get-user')
 class GetUser(Resource):
-    method_decorators = [valid_token]
     def get(self):
         """
         Get basic user informations
         """
-        return jsonify(spotify.get_user(session.get('baerer_token')))
+        return jsonify(spotify.get_user(session['user_id']))
 
 
 @api.route('/get-suggest-playlist')
@@ -160,6 +173,14 @@ class CreatePlaylist(Resource):
             return jsonify({
                 "message": "No category chosen"
             })
+
+    def get(self):
+        """
+        Create Playlist from user request form
+        """
+        q = request.args.get("q")
+        return jsonify(spotify.create_playlist(q, session.get('baerer_token')))
+
 
 
 """
