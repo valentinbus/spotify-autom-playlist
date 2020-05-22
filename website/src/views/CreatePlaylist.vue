@@ -47,8 +47,8 @@
         </v-row>
         <div class="dialog">
             <v-row justify="center">
-                <v-dialog content-class="dialog" v-model="dialog" max-width="290">
-                    <v-card>
+                <v-dialog content-class="v-dialog" v-model="dialog" max-width="290">
+                    <div class="dialog">
                         <v-card-title class="headline">Warning</v-card-title>
 
                         <v-card-text>Are you sure to want to create {{ chosen_playlist }} playlist ?</v-card-text>
@@ -60,7 +60,7 @@
 
                             <v-btn color="primary" text @click="dialog = false">Agree</v-btn>
                         </v-card-actions>
-                    </v-card>
+                    </div>
                 </v-dialog>
             </v-row>
         </div>
@@ -138,7 +138,6 @@ export default {
 
 .dialog {
     background: white;
-    box-shadow: None;
 }
 
 .v-dialog {
@@ -147,5 +146,9 @@ export default {
 
 .v-dialog__content {
     box-shadow: None;
+}
+
+.test {
+    background: white;
 }
 </style>
