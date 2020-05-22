@@ -1,4 +1,4 @@
-# todo-ninja
+# spotify
 
 ## Project setup
 ```

@@ -4,6 +4,7 @@ import Dashboard from './views/Dashboard.vue'
 import Projects from './views/Projects.vue'
 import Team from './views/Team.vue'
 import CreatePlaylist from './views/CreatePlaylist'
+import Test from './views/Test'
 
 Vue.use(Router)
 
@@ -30,6 +31,11 @@ export default new Router({
       path: '/createplaylist',
       name: 'createplaylist',
       component: CreatePlaylist
+    },
+    {
+      path: '/test',
+      name: 'test',
+      component: Test
     }
 
   ]

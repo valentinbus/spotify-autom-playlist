@@ -87,7 +87,7 @@ class GetToken(Resource):
 @api.route('/init-db')
 class InitDb(Resource):
     method_decorators = [valid_token]
-    def put(self):
+    def get(self):
         """
         Call different method to init DB
         All loved tracks from authenticate user
@@ -160,48 +160,6 @@ class CreatePlaylist(Resource):
             return jsonify({
                 "message": "No category chosen"
             })
-
-
-
-"""
-|---------------------------------|
-| HERE ALL ROUTES FOR HTML RENDER |                                
-|---------------------------------|
-"""
-@app.route('/presentation', methods=['GET'])
-def presentation():
-    """
-    Presentation page to introduce user to this project
-    """
-    return render_template("presentation.html", d=[
-        {
-            "playlist_name": "indie soul"
-        },
-        {
-            "playlist_name": "rock"
-        },
-        {
-            "playlist_name": "indie rock"
-        },
-        {
-            "playlist_name": "flamenco"
-        },
-        ])
-
-
-@app.route('/show-suggest-playlist', methods=['GET'])
-def show_suggest_playlist():
-    """
-    Route to show and create playlist by category
-    """
-    category = spotify.suggest_playlist()
-    return render_template('select_suggest_cat.html', result=category.get('relevant_category'))
-
-
-@app.route('/test', methods=["GET"])
-def test():
-    return jsonify(spotify.init_db(session.get('baerer_token')))
-
 
 
 """
