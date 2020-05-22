@@ -30,9 +30,6 @@
           </v-avatar>
           <p class="white--text subheading mt-1">The Net Ninja</p>
         </v-flex>
-        <v-flex class="mt-4 mb-3">
-          <Popup @projectAdded="snackbar = true" />
-        </v-flex>
       </v-layout>
       <v-list>
         <v-list-tile v-for="link in links" :key="link.text" router :to="link.route">
@@ -50,21 +47,39 @@
 </template>
 
 <script>
-import Popup from './Popup'
+import axios from '../../node_modules/axios'
 
 export default {
-  components: { Popup },
+
   data() {
     return {
+      user_name: null,
+      user_photo: null,
       drawer: false,
       links: [
         { text: 'Dashboard', route: '/' },
         { text: 'My Projects', route: '/projects' },
-        { text: 'CreatePlaylist', route: '/createplaylist' }
+        { text: 'Create Playlist', route: '/createplaylist' },
+        { text: 'Login', route: '/connection' },
       ],
       snackbar: false
     }
-  }
+  },
+  // mounted() {
+  //     axios
+  //         .get(
+  //           "http://localhost:5000/get-user",
+  //           { user_id: 'valentinoiho'}
+  //         )
+  //         .then(
+  //             response =>
+  //                 (this.info = this.add_url(
+  //                     response['data']
+  //                 ),
+  //                 console.log("ICI:::"+response['data'])
+  //                 )
+  //         );
+  // },
 }
 </script>
 

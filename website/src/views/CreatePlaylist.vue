@@ -112,7 +112,6 @@ export default {
             return response;
         },
         choose(chosen_playlist) {
-            console.log("test");
             this.chosen_playlist = chosen_playlist;
         }
     }
@@ -146,9 +145,5 @@ export default {
 
 .v-dialog__content {
     box-shadow: None;
-}
-
-.test {
-    background: white;
 }
 </style>

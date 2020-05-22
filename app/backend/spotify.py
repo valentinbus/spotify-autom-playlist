@@ -24,6 +24,7 @@ API_TOKEN_URL = "https://accounts.spotify.com/api/token"
 
 HOME_URL = os.getenv('HOME_URL')
 URL = "https://accounts.spotify.com/authorize"
+REDIRECT_URL = os.getenv('REDIRECT_URL')
 #see this url for more information ==> https://developer.spotify.com/documentation/general/guides/scopes/
 SCOPE_AUTHORIZATION = (
     "user-read-private "
@@ -32,7 +33,6 @@ SCOPE_AUTHORIZATION = (
     "playlist-modify-private "
     "playlist-modify-public"
 )
-REDIRECT_URL = os.getenv('REDIRECT_URL')
 
 class Spotify:
     def __init__(self):
@@ -103,7 +103,6 @@ class Spotify:
 
         user_id = result.json().get('id')
         photo = [photo.get('url') for photo in result.json().get('images')][0]
-        pprint(f"PHOTO{photo}")
 
         #Create User if not exist
         if db.session.query(User).filter_by(id='valentinoiho').first() is None and user_id is not None:
@@ -163,8 +162,6 @@ class Spotify:
                     'name': item.get('track').get('name'),
                     'artist': item.get('track').get('artists')[0].get('id')
                 }
-                print(track)
-                print(offset)
                 response.append(track)
 
                 #Create tracks if not exist
@@ -450,7 +447,6 @@ class Spotify:
 
         #This give us cateogry name from previous request
         for element in query:
-            print(element[0])
             query = (db.session.query(Category.name, Category.id)
             .filter_by(id=element[0])
             )

@@ -4,6 +4,8 @@ import Dashboard from './views/Dashboard.vue'
 import Projects from './views/Projects.vue'
 import Team from './views/Team.vue'
 import CreatePlaylist from './views/CreatePlaylist'
+import Connection from './views/Connection'
+import LoginSuccess from './views/LoginSuccess'
 import Test from './views/Test'
 
 Vue.use(Router)
@@ -21,6 +23,16 @@ export default new Router({
       path: '/projects',
       name: 'projects',
       component: Projects
+    },
+    {
+      path: '/connection',
+      name: 'connection',
+      component: Connection
+    },
+    {
+      path: '/login-success',
+      name: 'loginsuccess',
+      component: LoginSuccess
     },
     {
       path: '/team',

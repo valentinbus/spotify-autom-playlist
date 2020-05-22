@@ -22,7 +22,7 @@ from .backend.models import (
 from .backend.spotify import Spotify
 from flask_cors import CORS
 from flask_caching import Cache
-from flask_restplus import Api, Resource
+from flask_restplus import Api, Resource, cors
 from functools import wraps
 
 from pprint import pprint
@@ -31,9 +31,10 @@ from pprint import pprint
 logging.basicConfig(level=logging.DEBUG)
 spotify = Spotify()
 
-api = Api(app)
-
 CORS(app)
+api = Api(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
+
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 
 """
@@ -66,11 +67,31 @@ def valid_token(f):
             return redirect('/authent')
     return wrap
 
+@app.route('/test')
+def test():
+    return {'test': 'test'}
+
+# @app.route('/authent')
+# def authent():
+#     return redirect(spotify._authorization_ulr())
+
+# @app.route('/get-token')
+# def get():
+#     code = request.args.get('code')
+#     spotify._get_baerer_token(code)
+#     user_id = spotify._get_user_id(f'Bearer {spotify.baerer_token}')
+#     session['baerer_token'] = f'Bearer {spotify.baerer_token}'
+#     session['user_id'] = user_id
+#     logging.info(session)
+#     return Response('Vous êtes connecté')
+
 
 @api.route('/authent')
 class authent(Resource):
     def get(self):
-        return redirect(spotify._authorization_ulr())
+        #return redirect(spotify._authorization_ulr())
+        return jsonify(spotify._authorization_ulr())
+
 
 
 @api.route('/get-token')
@@ -144,6 +165,7 @@ class GetCategories(Resource):
 
 @api.route('/get-user')
 class GetUser(Resource):
+    decorators = [cors.crossdomain(origin='*')]
     def get(self):
         """
         Get basic user informations
