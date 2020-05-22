@@ -42,26 +42,28 @@
                             </v-img>
                         </v-card>
                     </v-hover>
-                        <div class="dialog">
-                    <v-dialog hide-overlay v-model="dialog" max-width="290" class="{box-shadow: None}">
-                            <v-card>
-                                <v-card-title class="headline">Warning</v-card-title>
-
-                                <v-card-text>Are you sure you want to create this playlist ?</v-card-text>
-
-                                <v-card-actions>
-                                    <v-spacer></v-spacer>
-
-                                    <v-btn color="primary" text @click="dialog = false">Disagree</v-btn>
-
-                                    <v-btn color="primary" text @click="dialog = false">Agree</v-btn>
-                                </v-card-actions>
-                            </v-card>
-                    </v-dialog>
-                        </div>
                 </v-col>
             </template>
         </v-row>
+        <div class="dialog">
+            <v-row justify="center">
+                <v-dialog content-class="dialog" v-model="dialog" max-width="290">
+                    <v-card>
+                        <v-card-title class="headline">Warning</v-card-title>
+
+                        <v-card-text>Are you sure to want to create {{ chosen_playlist }} playlist ?</v-card-text>
+
+                        <v-card-actions>
+                            <v-spacer></v-spacer>
+
+                            <v-btn color="primary" text @click="dialog = false">Disagree</v-btn>
+
+                            <v-btn color="primary" text @click="dialog = false">Agree</v-btn>
+                        </v-card-actions>
+                    </v-card>
+                </v-dialog>
+            </v-row>
+        </div>
     </v-container>
 </template>
 
@@ -135,11 +137,15 @@ export default {
 }
 
 .dialog {
-    background: transparent;
+    background: white;
     box-shadow: None;
 }
 
-.v-dialog__content{
+.v-dialog {
+    background: white;
+}
+
+.v-dialog__content {
     box-shadow: None;
 }
 </style>
