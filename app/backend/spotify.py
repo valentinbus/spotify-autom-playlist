@@ -24,6 +24,7 @@ API_TOKEN_URL = "https://accounts.spotify.com/api/token"
 
 HOME_URL = os.getenv('HOME_URL')
 URL = "https://accounts.spotify.com/authorize"
+REDIRECT_URL = os.getenv('REDIRECT_URL')
 #see this url for more information ==> https://developer.spotify.com/documentation/general/guides/scopes/
 SCOPE_AUTHORIZATION = (
     "user-read-private "
@@ -32,7 +33,6 @@ SCOPE_AUTHORIZATION = (
     "playlist-modify-private "
     "playlist-modify-public"
 )
-REDIRECT_URL = os.getenv('REDIRECT_URL')
 
 class Spotify:
     def __init__(self):
@@ -102,10 +102,11 @@ class Spotify:
         )
 
         user_id = result.json().get('id')
+        photo = [photo.get('url') for photo in result.json().get('images')][0]
 
         #Create User if not exist
         if db.session.query(User).filter_by(id='valentinoiho').first() is None and user_id is not None:
-            u = User(id=user_id)
+            u = User(id=user_id, photo=photo)
             db.session.add(u)
             db.session.commit()
 
@@ -161,8 +162,6 @@ class Spotify:
                     'name': item.get('track').get('name'),
                     'artist': item.get('track').get('artists')[0].get('id')
                 }
-                print(track)
-                print(offset)
                 response.append(track)
 
                 #Create tracks if not exist
@@ -352,13 +351,15 @@ class Spotify:
             return {'message': 'Db already init'}
 
 
-    def get_tracks(self):
+    def get_tracks(self, user_id):
         """
         Get all loved tracks
         """
         response = list()
-
-        for track in db.session.query(Track).all():
+        playlist_id = db.session.query(Playlist).filter_by(user_id=user_id).first().id
+        db.session.query(Track).filter_by(id=db.session.query(TrackPlaylist.track_id).filter_by(playlist_id=playlist_id))
+        for track_id in db.session.query(TrackPlaylist.track_id).filter_by(playlist_id=playlist_id):
+            track = Track.query.get(track_id)
             response.append(
                 {
                     'id': track.id,
@@ -370,13 +371,14 @@ class Spotify:
         return response
 
 
-    def get_categories(self):
+    def get_categories(self, user_id):
         """
         Get all loved tracks
         """
         response = list()
 
-        for category in db.session.query(Category).all():
+        categories = db.session.query(Category).filter_by(user_id=user_id)
+        for category in categories:
             response.append(
                 {
                     'id': category.id,
@@ -387,13 +389,13 @@ class Spotify:
         return response
 
 
-    def get_playlist(self):
+    def get_playlist(self, user_id):
         """
         Get Playlist based on Loved Tracks
         """
         response = list()
 
-        playlists = Playlist.query.all()
+        playlists = db.session.query(Playlist).filter_by(user_id=user_id)
 
         for playlist in playlists:
             response.append(
@@ -407,26 +409,20 @@ class Spotify:
         return response
 
 
-    def get_user(self, token):
+    def get_user(self, user_id):
         """
         Call all actions to init db
         """
 
-        headers = {
-            'Authorization': token,
-        }
+        response = list()
 
-        params = {
-            'limit': 50,
-        }
-        result = requests.get(
-            url="https://api.spotify.com/v1/me/",
-            headers=headers,
-            params=params
-        )
+        user = User.query.get(user_id)
 
-        return result.json()
-
+        return [{
+            "user_id": user.id,
+            "user_photo": user.photo
+        }]
+            
 
     def suggest_playlist(self):
         """
@@ -451,7 +447,6 @@ class Spotify:
 
         #This give us cateogry name from previous request
         for element in query:
-            print(element[0])
             query = (db.session.query(Category.name, Category.id)
             .filter_by(id=element[0])
             )

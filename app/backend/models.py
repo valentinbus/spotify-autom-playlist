@@ -4,6 +4,7 @@ from datetime import datetime
 
 class User(db.Model):
     id = db.Column(db.String(64), primary_key=True)
+    photo = db.Column(db.String(140))
 
     def __repr__(self):
         return '<User {}>'.format(self.id)   

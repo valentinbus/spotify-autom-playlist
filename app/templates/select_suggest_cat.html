@@ -1,7 +1,0 @@
-{% for key in result %}
-<form action="/create-playlist" method="post">
-    <button type="submit" name="category_id" value={{ key.id }}> 
-    {{ key.name }}
-    </button>
-</form>
-{% endfor %}

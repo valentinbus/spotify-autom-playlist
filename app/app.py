@@ -22,7 +22,7 @@ from .backend.models import (
 from .backend.spotify import Spotify
 from flask_cors import CORS
 from flask_caching import Cache
-from flask_restplus import Api, Resource
+from flask_restplus import Api, Resource, cors
 from functools import wraps
 
 from pprint import pprint
@@ -31,9 +31,10 @@ from pprint import pprint
 logging.basicConfig(level=logging.DEBUG)
 spotify = Spotify()
 
-api = Api(app)
-
 CORS(app)
+api = Api(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
+
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 
 """
@@ -66,11 +67,31 @@ def valid_token(f):
             return redirect('/authent')
     return wrap
 
+@app.route('/test')
+def test():
+    return {'test': 'test'}
+
+# @app.route('/authent')
+# def authent():
+#     return redirect(spotify._authorization_ulr())
+
+# @app.route('/get-token')
+# def get():
+#     code = request.args.get('code')
+#     spotify._get_baerer_token(code)
+#     user_id = spotify._get_user_id(f'Bearer {spotify.baerer_token}')
+#     session['baerer_token'] = f'Bearer {spotify.baerer_token}'
+#     session['user_id'] = user_id
+#     logging.info(session)
+#     return Response('Vous êtes connecté')
+
 
 @api.route('/authent')
 class authent(Resource):
     def get(self):
-        return redirect(spotify._authorization_ulr())
+        #return redirect(spotify._authorization_ulr())
+        return jsonify(spotify._authorization_ulr())
+
 
 
 @api.route('/get-token')
@@ -78,8 +99,9 @@ class GetToken(Resource):
     def get(self):
         code = request.args.get('code')
         spotify._get_baerer_token(code)
-        spotify._get_user_id(f'Bearer {spotify.baerer_token}')
+        user_id = spotify._get_user_id(f'Bearer {spotify.baerer_token}')
         session['baerer_token'] = f'Bearer {spotify.baerer_token}'
+        session['user_id'] = user_id
         logging.info(session)
         return Response('Vous êtes connecté')
 
@@ -87,6 +109,19 @@ class GetToken(Resource):
 @api.route('/init-db')
 class InitDb(Resource):
     method_decorators = [valid_token]
+    def get(self):
+        """
+        Call different method to init DB
+        All loved tracks from authenticate user
+        Init 'Loved Tracks' Playlist with all loved tracks to improve speed for next actions
+        Init all categories based on tracks. Only solution was to get categories from artist
+        because Spotify API do not give genres by tracks
+        Init all relation table
+        """
+        #print(spotify.init_db(session.get('baerer_token')))
+        #return jsonify(spotify.init_db(session.get('baerer_token')))
+        return jsonify(spotify.init_db(session.get('baerer_token')))
+
     def put(self):
         """
         Call different method to init DB
@@ -107,7 +142,7 @@ class GetTracks(Resource):
         """
         Get all tracks from authenticate user
         """
-        return jsonify(spotify.get_tracks())
+        return jsonify(spotify.get_tracks(session['user_id']))
 
 
 @api.route('/get-categories')
@@ -116,7 +151,7 @@ class GetCategories(Resource):
         """
         Get all categories from authenticate user
         """
-        return jsonify(spotify.get_categories())
+        return jsonify(spotify.get_categories(session['user_id']))
 
 
 @api.route('/get-playlist')
@@ -125,17 +160,17 @@ class GetCategories(Resource):
         """
         Get all playlist from authenticate user
         """
-        return jsonify(spotify.get_playlist())
+        return jsonify(spotify.get_playlist(session['user_id']))
 
 
 @api.route('/get-user')
 class GetUser(Resource):
-    method_decorators = [valid_token]
+    decorators = [cors.crossdomain(origin='*')]
     def get(self):
         """
         Get basic user informations
         """
-        return jsonify(spotify.get_user(session.get('baerer_token')))
+        return jsonify(spotify.get_user(session['user_id']))
 
 
 @api.route('/get-suggest-playlist')
@@ -161,46 +196,12 @@ class CreatePlaylist(Resource):
                 "message": "No category chosen"
             })
 
-
-
-"""
-|---------------------------------|
-| HERE ALL ROUTES FOR HTML RENDER |                                
-|---------------------------------|
-"""
-@app.route('/presentation', methods=['GET'])
-def presentation():
-    """
-    Presentation page to introduce user to this project
-    """
-    return render_template("presentation.html", d=[
-        {
-            "playlist_name": "indie soul"
-        },
-        {
-            "playlist_name": "rock"
-        },
-        {
-            "playlist_name": "indie rock"
-        },
-        {
-            "playlist_name": "flamenco"
-        },
-        ])
-
-
-@app.route('/show-suggest-playlist', methods=['GET'])
-def show_suggest_playlist():
-    """
-    Route to show and create playlist by category
-    """
-    category = spotify.suggest_playlist()
-    return render_template('select_suggest_cat.html', result=category.get('relevant_category'))
-
-
-@app.route('/test', methods=["GET"])
-def test():
-    return jsonify(spotify.init_db(session.get('baerer_token')))
+    def get(self):
+        """
+        Create Playlist from user request form
+        """
+        q = request.args.get("q")
+        return jsonify(spotify.create_playlist(q, session.get('baerer_token')))
 
 
 
