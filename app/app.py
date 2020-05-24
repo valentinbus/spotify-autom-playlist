@@ -98,12 +98,17 @@ class authent(Resource):
 class GetToken(Resource):
     def get(self):
         code = request.args.get('code')
+        print(f'code:::{code}')
         spotify._get_baerer_token(code)
         user_id = spotify._get_user_id(f'Bearer {spotify.baerer_token}')
-        session['baerer_token'] = f'Bearer {spotify.baerer_token}'
+        baerer_token = f'Bearer {spotify.baerer_token}'
+        session['baerer_token'] = baerer_token
         session['user_id'] = user_id
         logging.info(session)
-        return Response('Vous êtes connecté')
+        return [{
+            'user_id': user_id,
+            'baerer_token': baerer_token
+        }]
 
 
 @api.route('/init-db')
@@ -165,12 +170,13 @@ class GetCategories(Resource):
 
 @api.route('/get-user')
 class GetUser(Resource):
-    decorators = [cors.crossdomain(origin='*')]
     def get(self):
         """
         Get basic user informations
         """
-        return jsonify(spotify.get_user(session['user_id']))
+        print(f"SESSION:::{[session for session in session]}")
+        user_id = request.args.get('user_id')
+        return jsonify(spotify.get_user(user_id))
 
 
 @api.route('/get-suggest-playlist')
