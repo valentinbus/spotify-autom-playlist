@@ -26,9 +26,9 @@
       <v-layout column align-center>
         <v-flex class="mt-5">
           <v-avatar size="100">
-            <img class="text-lg-center" src="/avatar-1.png">
+            <img class="text-lg-center" :src="info[0]['user_photo']">
           </v-avatar>
-          <p class="white--text subheading mt-1">The Net Ninja</p>
+          <p class="white--text subheading mt-1">{{ info[0]['user_id']  }}</p>
         </v-flex>
       </v-layout>
       <v-list>
@@ -65,21 +65,19 @@ export default {
       snackbar: false
     }
   },
-  // mounted() {
-  //     axios
-  //         .get(
-  //           "http://localhost:5000/get-user",
-  //           { user_id: 'valentinoiho'}
-  //         )
-  //         .then(
-  //             response =>
-  //                 (this.info = this.add_url(
-  //                     response['data']
-  //                 ),
-  //                 console.log("ICI:::"+response['data'])
-  //                 )
-  //         );
-  // },
+  mounted() {
+      axios
+          .get(
+            "http://localhost:5000/get-user?user_id="+this.$session.get('user_id'),
+            { user_id: 'valentinoiho'}
+          )
+          .then(
+              response => (
+                this.info = response['data'],
+                console.log("ici:::"+response['data'])
+              ),
+          )
+  },
 }
 </script>
 
