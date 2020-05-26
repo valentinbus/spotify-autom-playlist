@@ -1,4 +1,5 @@
 # spotify
+![alt text](./documentation/website.png)
 
 ## Project setup
 ```
