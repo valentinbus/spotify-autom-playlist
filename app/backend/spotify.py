@@ -24,8 +24,8 @@ API_TOKEN_URL = "https://accounts.spotify.com/api/token"
 
 HOME_URL = os.getenv('HOME_URL')
 URL = "https://accounts.spotify.com/authorize"
-REDIRECT_URL = os.getenv('REDIRECT_URL')
-#REDIRECT_URL = "http://0.0.0.0:5000/get-token"
+#REDIRECT_URL = os.getenv('REDIRECT_URL')
+REDIRECT_URL = "http://0.0.0.0:5000/get-token"
 #see this url for more information ==> https://developer.spotify.com/documentation/general/guides/scopes/
 SCOPE_AUTHORIZATION = (
     "user-read-private "
