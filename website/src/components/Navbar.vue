@@ -26,9 +26,9 @@
       <v-layout column align-center>
         <v-flex class="mt-5">
           <v-avatar size="100">
-            <img class="text-lg-center" :src="info[0]['user_photo']">
+            <img class="text-lg-center" src="user photo">
           </v-avatar>
-          <p class="white--text subheading mt-1">{{ info[0]['user_id']  }}</p>
+          <p class="white--text subheading mt-1">user name</p>
         </v-flex>
       </v-layout>
       <v-list>

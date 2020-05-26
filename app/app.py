@@ -67,31 +67,12 @@ def valid_token(f):
             return redirect('/authent')
     return wrap
 
-@app.route('/test')
-def test():
-    return {'test': 'test'}
-
-# @app.route('/authent')
-# def authent():
-#     return redirect(spotify._authorization_ulr())
-
-# @app.route('/get-token')
-# def get():
-#     code = request.args.get('code')
-#     spotify._get_baerer_token(code)
-#     user_id = spotify._get_user_id(f'Bearer {spotify.baerer_token}')
-#     session['baerer_token'] = f'Bearer {spotify.baerer_token}'
-#     session['user_id'] = user_id
-#     logging.info(session)
-#     return Response('Vous êtes connecté')
-
 
 @api.route('/authent')
 class authent(Resource):
     def get(self):
-        #return redirect(spotify._authorization_ulr())
-        return jsonify(spotify._authorization_ulr())
-
+        return redirect(spotify._authorization_ulr())
+        #return jsonify(spotify._authorization_ulr())
 
 
 @api.route('/get-token')
@@ -105,10 +86,10 @@ class GetToken(Resource):
         session['baerer_token'] = baerer_token
         session['user_id'] = user_id
         logging.info(session)
-        return [{
+        return {
             'user_id': user_id,
             'baerer_token': baerer_token
-        }]
+        }
 
 
 @api.route('/init-db')
@@ -174,9 +155,10 @@ class GetUser(Resource):
         """
         Get basic user informations
         """
-        print(f"SESSION:::{[session for session in session]}")
-        user_id = request.args.get('user_id')
-        return jsonify(spotify.get_user(user_id))
+        print(f"HEADER:::{request.headers}")
+        #user_id = request.args.get('user_id')
+        #return jsonify(spotify.get_user(user_id))
+        return jsonify(spotify.get_user("valentinoiho"))
 
 
 @api.route('/get-suggest-playlist')
