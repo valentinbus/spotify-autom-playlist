@@ -24,6 +24,7 @@ from flask_cors import CORS
 from flask_caching import Cache
 from flask_restplus import Api, Resource, cors
 from functools import wraps
+import jwt
 
 from pprint import pprint
 
@@ -71,8 +72,8 @@ def valid_token(f):
 @api.route('/authent')
 class authent(Resource):
     def get(self):
-        #return redirect(spotify._authorization_ulr())
-        return jsonify(spotify._authorization_ulr())
+        return redirect(spotify._authorization_ulr())
+        #return jsonify(spotify._authorization_ulr())
 
 
 @api.route('/get-token')
@@ -83,17 +84,23 @@ class GetToken(Resource):
         spotify._get_baerer_token(code)
         user_id = spotify._get_user_id(f'Bearer {spotify.baerer_token}')
         baerer_token = f'Bearer {spotify.baerer_token}'
-        session['baerer_token'] = baerer_token
-        session['user_id'] = user_id
-        logging.info(session)
-        return { 
-            'user_id': user_id,
-            'baerer_token': baerer_token
-        }
+        jwt_token = jwt.encode(
+            {
+                'user_id': user_id,
+                'baerer_token': baerer_token
+            },
+            os.getenv('SECRET_KEY'),
+            algorithm='HS256'
+        )
 
-        # return {
-        #     'jwt': jwt_token #dans lequel je peux mettre le user id et le baerer token
-        # }
+        return {"jwt_token": jwt_token.decode('UTF-8')}
+
+
+@api.route('/test')
+class Test(Resource):
+    def get(self):
+        jwt_token = request.args.get('jwt_token')
+        return {'contenu': jwt.decode(jwt_token, os.getenv('SECRET_KEY'), algorithm="HS256")}
 
 
 @api.route('/init-db')
