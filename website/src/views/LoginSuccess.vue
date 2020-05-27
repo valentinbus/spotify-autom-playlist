@@ -25,11 +25,8 @@ import axios from '../../node_modules/axios'
                   (this.info =(
                       response['data']
                   ),
-                  console.log("ICI:::"+response['data'][0]['user_id']),
                   this.$session.start(),
-                  this.$session.set("user_id", response['data'][0]['user_id']),
-                  this.$session.set("baerer_token", response['data'][0]['baerer_token']),
-                  console.log(this.$session.get('user_id'))
+                  this.$session.set("jwt_token", response['data']['jwt_token'])
               ),
           );
     },
