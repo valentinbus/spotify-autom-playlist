@@ -84,6 +84,19 @@ class Spotify:
         self.baerer_token = content.get('access_token') #use for all api request
         return HOME_URL
 
+    def _check_token(self, token):
+        """
+        Get user information
+        """
+        headers = {
+            'Authorization': token,
+        }
+
+        result = requests.get(
+            url="https://api.spotify.com/v1/me/",
+            headers=headers
+        )
+
 
     def _get_user_id(self, token):
         """
@@ -196,7 +209,7 @@ class Spotify:
                 print(result.json().get('genres'))
                 for category_name in result.json().get('genres'):
                     if db.session.query(Category).filter_by(name=category_name).first() is None:
-                        cat = Category(name=category_name)
+                        cat = Category(name=category_name, user_id=user_id)
                         db.session.add(cat)
                         db.session.commit()
 
@@ -206,7 +219,8 @@ class Spotify:
                         response.append(
                             {
                                 'category_id': category_id,
-                                'category_name': category_name
+                                'category_name': category_name,
+                                'user_id': user_id
                             }
                         )
 
