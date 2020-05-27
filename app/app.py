@@ -71,8 +71,8 @@ def valid_token(f):
 @api.route('/authent')
 class authent(Resource):
     def get(self):
-        return redirect(spotify._authorization_ulr())
-        #return jsonify(spotify._authorization_ulr())
+        #return redirect(spotify._authorization_ulr())
+        return jsonify(spotify._authorization_ulr())
 
 
 @api.route('/get-token')
@@ -86,10 +86,14 @@ class GetToken(Resource):
         session['baerer_token'] = baerer_token
         session['user_id'] = user_id
         logging.info(session)
-        return {
+        return { 
             'user_id': user_id,
             'baerer_token': baerer_token
         }
+
+        # return {
+        #     'jwt': jwt_token #dans lequel je peux mettre le user id et le baerer token
+        # }
 
 
 @api.route('/init-db')
