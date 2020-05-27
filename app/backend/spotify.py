@@ -24,8 +24,8 @@ API_TOKEN_URL = "https://accounts.spotify.com/api/token"
 
 HOME_URL = os.getenv('HOME_URL')
 URL = "https://accounts.spotify.com/authorize"
-#REDIRECT_URL = os.getenv('REDIRECT_URL')
-REDIRECT_URL = "http://0.0.0.0:5000/get-token"
+REDIRECT_URL = os.getenv('REDIRECT_URL')
+#REDIRECT_URL = "http://0.0.0.0:5000/get-token"
 #see this url for more information ==> https://developer.spotify.com/documentation/general/guides/scopes/
 SCOPE_AUTHORIZATION = (
     "user-read-private "
@@ -114,11 +114,12 @@ class Spotify:
         )
 
         user_id = result.json().get('id')
+        display_name = result.json().get('display_name')
         photo = [photo.get('url') for photo in result.json().get('images')][0]
 
         #Create User if not exist
-        if db.session.query(User).filter_by(id='valentinoiho').first() is None and user_id is not None:
-            u = User(id=user_id, photo=photo)
+        if db.session.query(User).filter_by(id=user_id).first() is None and user_id is not None:
+            u = User(id=user_id, photo=photo, display_name=display_name)
             db.session.add(u)
             db.session.commit()
 
@@ -206,23 +207,23 @@ class Spotify:
             )
 
             if result.json().get('genres'):
-                print(result.json().get('genres'))
+                #print(result.json().get('genres'))
                 for category_name in result.json().get('genres'):
-                    if db.session.query(Category).filter_by(name=category_name).first() is None:
-                        cat = Category(name=category_name, user_id=user_id)
-                        db.session.add(cat)
-                        db.session.commit()
+                    # if db.session.query(Category).filter_by(name=category_name).first() is None:
+                    cat = Category(name=category_name, user_id=user_id)
+                    db.session.add(cat)
+                    db.session.commit()
 
-                        category_id = db.session.query(Category).filter_by(name=category_name).first().id
-                        track_id = track.id
+                    category_id = db.session.query(Category).filter_by(name=category_name).first().id
+                    track_id = track.id
 
-                        response.append(
-                            {
-                                'category_id': category_id,
-                                'category_name': category_name,
-                                'user_id': user_id
-                            }
-                        )
+                    response.append(
+                        {
+                            'category_id': category_id,
+                            'category_name': category_name,
+                            'user_id': user_id
+                        }
+                    )
 
 
 
@@ -233,15 +234,14 @@ class Spotify:
                         db.session.add(category_track)
                         db.session.commit()
 
-                    else:
-                        category = db.session.query(Category).filter_by(name=category_name).first()
-                        print(f"CATEGORY NAME:::{category.name}")
-                        response.append(
-                            {
-                                'category_id': category.id,
-                                'category_name': category.name
-                            }
-                        )
+                    # else:
+                    #     category = db.session.query(Category).filter_by(name=category_name).first()
+                    #     response.append(
+                    #         {
+                    #             'category_id': category.id,
+                    #             'category_name': category.name
+                    #         }
+                    #     )
 
         return response
 
