@@ -437,7 +437,7 @@ class Spotify:
         }]
             
 
-    def suggest_playlist(self):
+    def suggest_playlist(self, user_id):
         """
         Purpose category playlist based on categories that come up the most in the liked songs
         """
@@ -447,15 +447,16 @@ class Spotify:
 
         #This query give us all most relevant category.id from loved track 
         #playlist based on category track table
+        categories_id = [category[0] for category in db.session.query(Category.id).filter_by(user_id=user_id)]
         query = (db.session.query(
             CategoryTrack.category_id, 
             db.func.count(CategoryTrack.category_id).label('count'))
+            .filter(CategoryTrack.category_id.in_(categories_id))
             .group_by(
                 CategoryTrack.category_id)
             .order_by(
                 db.func.count(CategoryTrack.category_id).desc())
             .limit(10)
-            .all()
         )
 
         #This give us cateogry name from previous request
