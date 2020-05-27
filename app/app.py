@@ -51,8 +51,7 @@ def valid_token(f):
         TODO try with session.get('baerer') is valid with request...
         """
         res = f()
-        if session.get('baerer_token') and session.get('baerer_token') != "Bearer None":
-            logging.info("In decorator")
+        try:
             if isinstance(res.get_json(), list):
                 for element in res.get_json():
                     if (
@@ -60,12 +59,10 @@ def valid_token(f):
                         element.get('error').get('message') == "Only valid bearer authentication supported" or
                         element.get('error').get('message') == "The access token expired"
                     ):
-                        return redirect('/authent') #attach get paramater to redirect
-            else:
-                return res
-        elif session.get('baerer_token') is None:
-            logging.debug('You need to have a valid token')
-            return redirect('/authent')
+                        return {"error": "Baerer token is not valid"} #attach get paramater to redirect
+        except:
+            pass
+        return res
     return wrap
 
 
@@ -96,16 +93,23 @@ class GetToken(Resource):
         return {"jwt_token": jwt_token.decode('UTF-8')}
 
 
-@api.route('/test')
-class Test(Resource):
+@api.route('/check-token')
+class CheckToken(Resource):
+    method_decorators = [valid_token]
     def get(self):
-        jwt_token = request.args.get('jwt_token')
-        return {'contenu': jwt.decode(jwt_token, os.getenv('SECRET_KEY'), algorithm="HS256")}
+        jwt_token = request.headers.get('jwt_token')
+
+        try:
+            baerer_token = jwt.decode(jwt_token, os.getenv('SECRET_KEY'), algorithm="HS256").get('baerer_token')
+        except jwt.exceptions.DecodeError as e:
+            return {"error": f"{e}:::Check Jwt token"}
+
+        spotify._check_token(baerer_token)
+        return {"message": "Jwt token is valid"}
 
 
 @api.route('/init-db')
 class InitDb(Resource):
-    method_decorators = [valid_token]
     def get(self):
         """
         Call different method to init DB
@@ -115,9 +119,9 @@ class InitDb(Resource):
         because Spotify API do not give genres by tracks
         Init all relation table
         """
-        #print(spotify.init_db(session.get('baerer_token')))
-        #return jsonify(spotify.init_db(session.get('baerer_token')))
-        return jsonify(spotify.init_db(session.get('baerer_token')))
+        jwt_token = request.headers.get('jwt_token')
+        baerer_token = jwt.decode(jwt_token, os.getenv('SECRET_KEY'), algorithm="HS256").get('baerer_token')
+        return jsonify(spotify.init_db(baerer_token))
 
     def put(self):
         """
@@ -139,7 +143,9 @@ class GetTracks(Resource):
         """
         Get all tracks from authenticate user
         """
-        return jsonify(spotify.get_tracks(session['user_id']))
+        jwt_token = request.headers.get('jwt_token')
+        user_id = jwt.decode(jwt_token, os.getenv('SECRET_KEY'), algorithm="HS256").get('user_id')
+        return jsonify(spotify.get_tracks(user_id))
 
 
 @api.route('/get-categories')
@@ -148,7 +154,9 @@ class GetCategories(Resource):
         """
         Get all categories from authenticate user
         """
-        return jsonify(spotify.get_categories(session['user_id']))
+        jwt_token = request.headers.get('jwt_token')
+        user_id = jwt.decode(jwt_token, os.getenv('SECRET_KEY'), algorithm="HS256").get('user_id')
+        return jsonify(spotify.get_categories(user_id))
 
 
 @api.route('/get-playlist')
@@ -157,7 +165,9 @@ class GetCategories(Resource):
         """
         Get all playlist from authenticate user
         """
-        return jsonify(spotify.get_playlist(session['user_id']))
+        jwt_token = request.headers.get('jwt_token')
+        user_id = jwt.decode(jwt_token, os.getenv('SECRET_KEY'), algorithm="HS256").get('user_id')
+        return jsonify(spotify.get_playlist(user_id))
 
 
 @api.route('/get-user')
@@ -166,22 +176,23 @@ class GetUser(Resource):
         """
         Get basic user informations
         """
-        print(f"HEADER:::{request.headers}")
-        #user_id = request.args.get('user_id')
-        #return jsonify(spotify.get_user(user_id))
-        return jsonify(spotify.get_user("valentinoiho"))
+        jwt_token = request.headers.get('jwt_token')
+        user_id = jwt.decode(jwt_token, os.getenv('SECRET_KEY'), algorithm="HS256").get('user_id')
+        print(f"user id :::{user_id}")
+        return jsonify(spotify.get_user(user_id))
 
 
 @api.route('/get-suggest-playlist')
 class GetSuggestPlaylist(Resource):
     def get(self):
-        return jsonify(spotify.suggest_playlist())
+        jwt_token = request.headers.get('jwt_token')
+        user_id = jwt.decode(jwt_token, os.getenv('SECRET_KEY'), algorithm="HS256").get('user_id')
+        return jsonify(spotify.suggest_playlist(user_id))
 
 
 @api.route('/create-playlist')
 @api.doc(body={'category_id': 'A category ID'})
 class CreatePlaylist(Resource):
-    method_decorators = [valid_token]
     def post(self):
         """
         Create Playlist from user request form
