@@ -94,13 +94,19 @@ export default {
     }),
 
     mounted() {
+        let config = {
+            headers: {
+                jwt_token: this.$store.state.jwt_token
+            }
+        }
         axios
-            .get("http://localhost:5000/get-suggest-playlist")
+            .get("http://localhost:5000/get-suggest-playlist", config)
             .then(
                 response =>
                     (this.info = this.add_url(
                         response["data"]["relevant_category"]
-                    ))
+                    )
+                    )
             );
     },
 

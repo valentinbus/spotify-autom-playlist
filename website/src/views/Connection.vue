@@ -4,6 +4,7 @@
       color="primary"
       text
       :href="info"
+      v-on:click="logIn()"
     >
       Login
     </v-btn>
@@ -19,8 +20,13 @@ import axios from '../../node_modules/axios'
         dialog: false,
       }
     },
+    methods: {
+      logIn() {
+        this.$store.state.connected = true
+      }
+    },
     mounted() {
-      console.log("je suis ici")
+      console.log(this.$store.state.connected=false)
       axios
           .get(
             "http://localhost:5000/authent",
