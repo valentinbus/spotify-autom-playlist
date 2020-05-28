@@ -69,8 +69,8 @@ def valid_token(f):
 @api.route('/authent')
 class authent(Resource):
     def get(self):
-        return redirect(spotify._authorization_ulr())
-        #return jsonify(spotify._authorization_ulr())
+        #return redirect(spotify._authorization_ulr())
+        return jsonify(spotify._authorization_ulr())
 
 
 @api.route('/get-token')
@@ -90,21 +90,22 @@ class GetToken(Resource):
             algorithm='HS256'
         )
 
+        pprint(f"JWT TOKEN:::{jwt_token}")
+
         return {"jwt_token": jwt_token.decode('UTF-8')}
 
 
 @api.route('/check-token')
 class CheckToken(Resource):
-    method_decorators = [valid_token]
     def get(self):
         jwt_token = request.headers.get('jwt_token')
 
         try:
             baerer_token = jwt.decode(jwt_token, os.getenv('SECRET_KEY'), algorithm="HS256").get('baerer_token')
+            return spotify._check_token(baerer_token)
         except jwt.exceptions.DecodeError as e:
             return {"error": f"{e}:::Check Jwt token"}
 
-        spotify._check_token(baerer_token)
         return {"message": "Jwt token is valid"}
 
 
@@ -186,6 +187,7 @@ class GetUser(Resource):
 class GetSuggestPlaylist(Resource):
     def get(self):
         jwt_token = request.headers.get('jwt_token')
+        print(f"TYPE:::{type(jwt_token)}")
         user_id = jwt.decode(jwt_token, os.getenv('SECRET_KEY'), algorithm="HS256").get('user_id')
         return jsonify(spotify.suggest_playlist(user_id))
 

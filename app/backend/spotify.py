@@ -96,7 +96,8 @@ class Spotify:
             url="https://api.spotify.com/v1/me/",
             headers=headers
         )
-
+        
+        return result.json()
 
     def _get_user_id(self, token):
         """
