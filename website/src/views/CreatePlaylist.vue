@@ -3,6 +3,7 @@
         <h1 class="grey--text m-12">Select the playlist you want to create</h1>
         <v-row class="fill-height" align="center" justify="center">
             <template v-for="(item, i) in info">
+                {{ test }}
                 <v-col :key="i" cols="12" md="4">
                     <v-hover>
                         <v-card
@@ -74,6 +75,7 @@ export default {
     data: () => ({
         chosen_playlist: null,
         popup: false,
+        test: null,
         name: "CreatePlaylist",
         icons: ["mdi-rewind", "mdi-play", "mdi-fast-forward"],
         info: null,
