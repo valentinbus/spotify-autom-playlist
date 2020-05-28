@@ -84,6 +84,7 @@ export default {
                 { text: "Dashboard", route: "/" },
                 { text: "My Projects", route: "/projects" },
                 { text: "Create Playlist", route: "/createplaylist" },
+                { text: "Test", route: "/test" },
                 { text: "Logout", route: "/connection" }
             ],
             links_disconnected: [
