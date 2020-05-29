@@ -90,7 +90,7 @@ class GetToken(Resource):
             algorithm='HS256'
         )
 
-        pprint(f"JWT TOKEN:::{jwt_token}")
+        # pprint(f"JWT TOKEN:::{jwt_token}")
 
         return {"jwt_token": jwt_token.decode('UTF-8')}
 
@@ -98,10 +98,10 @@ class GetToken(Resource):
 @api.route('/check-token')
 class CheckToken(Resource):
     def get(self):
-        jwt_token = request.headers.get('jwt_token')
-
         try:
+            jwt_token = request.headers.get('jwt_token')
             baerer_token = jwt.decode(jwt_token, os.getenv('SECRET_KEY'), algorithm="HS256").get('baerer_token')
+            #baerer_token = "test expired token"
             return spotify._check_token(baerer_token)
         except jwt.exceptions.DecodeError as e:
             return {"error": f"{e}:::Check Jwt token"}
@@ -187,7 +187,6 @@ class GetUser(Resource):
 class GetSuggestPlaylist(Resource):
     def get(self):
         jwt_token = request.headers.get('jwt_token')
-        print(f"TYPE:::{type(jwt_token)}")
         user_id = jwt.decode(jwt_token, os.getenv('SECRET_KEY'), algorithm="HS256").get('user_id')
         return jsonify(spotify.suggest_playlist(user_id))
 
@@ -200,9 +199,12 @@ class CreatePlaylist(Resource):
         Create Playlist from user request form
         """
         q = request.form['category_id']
+        jwt_token = request.headers.get('jwt_token')
+        baerer_token = jwt.decode(jwt_token, os.getenv('SECRET_KEY'), algorithm="HS256").get('baerer_token')
+        user_id = jwt.decode(jwt_token, os.getenv('SECRET_KEY'), algorithm="HS256").get('user_id')
 
         if q:
-            return jsonify(spotify.create_playlist(q, session.get('baerer_token')))
+            return jsonify(spotify.create_playlist(q, baerer_token, user_id))
         else:
             return jsonify({
                 "message": "No category chosen"

@@ -96,7 +96,7 @@ class Spotify:
             url="https://api.spotify.com/v1/me/",
             headers=headers
         )
-        
+        pprint(f"check token result:::{result.json()}")
         return result.json()
 
     def _get_user_id(self, token):
@@ -333,7 +333,6 @@ class Spotify:
                 params=params,
                 url=url
             )
-            print(f"RESULT:::{result.json()}")
 
             i+=50
         return {'ok': 'super'}
@@ -467,6 +466,7 @@ class Spotify:
             )
             
             for element in query:
+                print(element)
                 d = {
                     "name": element[0],
                     "id": element[1]
@@ -476,15 +476,10 @@ class Spotify:
         return response
 
 
-    def create_playlist(self, q, token):
+    def create_playlist(self, q, token, user_id):
         """
         Create playlist for user request
         """
-        if self.user_id:
-            user_id = self.user_id
-        else:
-            user_id = self._get_user_id(token)
-
         if q.isdigit() and db.session.query(Category).filter_by(id=q).first() is not None:
             playlist_name = db.session.query(Category).filter_by(id=q).first().name
             if db.session.query(Playlist).filter_by(name=playlist_name).first() is None:
