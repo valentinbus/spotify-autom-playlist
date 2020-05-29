@@ -1,42 +1,20 @@
 <template>
-    <div>{{ test }}</div>
+    <div>
+        <!-- <div>{{ this.$store.state.connected }}</div> -->
+        <div>{{ checkToken }}</div>
+    </div>
 </template>
 <script>
-import axios from "axios"
-import checkToken from "../script/checkToken"
+import axios from "axios";
+import { mapGetters } from 'vuex';
 
 export default {
     data: () => ({
         test: null
     }),
-
-    mounted() {
-        let config = {
-            headers: {
-                jwt_token: this.$store.state.jwt_token
-            }
-        };
-        axios
-            .get("http://localhost:5000/check-token", config)
-            .then(
-                response => (
-                    (this.test = response),
-                    console.log("CHECK TOKEN:::" + response),
-                    this.test = this.cathError(response)
-                )
-            );
-    },
-    methods: {
-      cathError(response) {
-        if(response['data']["error"]) {
-          this.$store.state.connected = false
-          return "Vous devez vous connectez avant"
-        }
-        else {
-          return "ok"
-        }
-      }
-    }
+    computed: mapGetters([
+      'checkToken'
+    ])
 
 };
 </script>

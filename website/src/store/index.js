@@ -2,6 +2,7 @@
 
 import Vue from "vue";
 import Vuex from "vuex";
+import axios from "axios";
 
 Vue.use(Vuex);
 
@@ -12,34 +13,34 @@ export default new Vuex.Store({
         user_photo: null,
         user_id: null,
     },
-    getters: {},
+    //check if token is valid
+    getters: {
+        checkToken: state => {
+            let config = {
+                headers: {
+                    jwt_token: state.jwt_token
+                }
+            };
+            axios
+                .get("http://localhost:5000/check-token", config)
+                .then(
+                    response => (
+                        cathError(response, state)
+                    )
+                );
+            return state.connected
+        },
+    },
     mutations: {},
     actions: {}
 });
 
-// function checkToken() {
-//     let config = {
-//         headers: {
-//             jwt_token: this.$store.state.jwt_token
-//         }
-//     };
-//     axios
-//         .get("http://localhost:5000/check-token", config)
-//         .then(
-//             response => (
-//                 (this.test = response),
-//                 console.log("CHECK TOKEN:::" + response),
-//                 this.test = cathError(response)
-//             )
-//         );
-// }
-
-// function cathError(response) {
-//     if (response['data']["error"]) {
-//         this.$store.state.connected = false
-//         return "Vous devez vous connectez avant"
-//     }
-//     else {
-//         return "ok"
-//     }
-// }
+function cathError(response, state) {
+    if (response['data']["error"]) {
+        state.connected = false
+        return "You have to login before"
+    }
+    else {
+        return "ok"
+    }
+}
