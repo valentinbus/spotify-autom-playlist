@@ -108,7 +108,7 @@ export default {
             drawer: false,
             links_connected: [
                 { text: "Dashboard", route: "/" },
-                { text: "My Projects", route: "/projects" },
+                { text: "Synchronize", route: "/init" },
                 { text: "Create Playlist", route: "/createplaylist" },
                 { text: "Test", route: "/test" },
                 { text: "Logout", route: "/connection" }
