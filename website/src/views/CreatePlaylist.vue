@@ -1,5 +1,9 @@
 <template>
-    <v-container class="pa-4 text-center">
+<div>
+    <v-container class="pa-4 text-center" v-if="this.$store.state.connected==false">
+        <h1>You have to be login</h1>
+    </v-container>
+    <v-container class="pa-4 text-center" v-if="this.$store.state.connected==true">
         <h1 class="grey--text m-12">Select the playlist you want to create</h1>
         <v-row class="fill-height" align="center" justify="center">
             <template v-for="(item, i) in info">
@@ -66,6 +70,7 @@
             </v-row>
         </div>
     </v-container>
+</div>
 </template>
 
 <script>
@@ -111,7 +116,6 @@ export default {
                     )
             );
     },
-
     methods: {
         add_url(response) {
             for (var i = 0; i < response.length; i++) {
