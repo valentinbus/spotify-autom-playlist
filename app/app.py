@@ -90,8 +90,6 @@ class GetToken(Resource):
             algorithm='HS256'
         )
 
-        # pprint(f"JWT TOKEN:::{jwt_token}")
-
         return {"jwt_token": jwt_token.decode('UTF-8')}
 
 
@@ -111,7 +109,7 @@ class CheckToken(Resource):
 
 @api.route('/init-db')
 class InitDb(Resource):
-    def get(self):
+    def put(self):
         """
         Call different method to init DB
         All loved tracks from authenticate user
@@ -122,20 +120,9 @@ class InitDb(Resource):
         """
         jwt_token = request.headers.get('jwt_token')
         baerer_token = jwt.decode(jwt_token, os.getenv('SECRET_KEY'), algorithm="HS256").get('baerer_token')
-        return jsonify(spotify.init_db(baerer_token))
+        user_id = jwt.decode(jwt_token, os.getenv('SECRET_KEY'), algorithm="HS256").get('user_id')
 
-    def put(self):
-        """
-        Call different method to init DB
-        All loved tracks from authenticate user
-        Init 'Loved Tracks' Playlist with all loved tracks to improve speed for next actions
-        Init all categories based on tracks. Only solution was to get categories from artist
-        because Spotify API do not give genres by tracks
-        Init all relation table
-        """
-        #print(spotify.init_db(session.get('baerer_token')))
-        #return jsonify(spotify.init_db(session.get('baerer_token')))
-        return jsonify(spotify.init_db(session.get('baerer_token')))
+        return jsonify(spotify.init_db(baerer_token, user_id))
 
 
 @api.route('/get-tracks')
@@ -209,13 +196,6 @@ class CreatePlaylist(Resource):
             return jsonify({
                 "message": "No category chosen"
             })
-
-    def get(self):
-        """
-        Create Playlist from user request form
-        """
-        q = request.args.get("q")
-        return jsonify(spotify.create_playlist(q, session.get('baerer_token')))
 
 
 

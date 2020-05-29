@@ -338,21 +338,13 @@ class Spotify:
         return {'ok': 'super'}
 
 
-    def init_db(self, token):
+    def init_db(self, token, user_id):
         """
         Call all actions to init db
         """
         #:
-        user_id = self._get_user_id(token)
 
-        if user_id is None:
-            return [{
-                "error": {
-                    "message": "The access token expired"
-                }
-            }]
-
-        elif db.session.query(Playlist).filter_by(user_id=user_id, name="Loved Tracks").first() is None:
+        if db.session.query(Playlist).filter_by(user_id=user_id, name="Loved Tracks").first() is None:
             self._get_user_id(token)
             self._init_loved_track(token)
             self._init_first_playlist(token)
