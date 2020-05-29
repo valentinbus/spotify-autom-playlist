@@ -1,6 +1,6 @@
 <template>
-  <v-row justify="center">
-    <div v-if="this.$store.state.message_connection != null">{{ this.$store.state.message_connection }}</div>
+  <v-row justify="pa-4 center">
+    <h1 v-if="this.$store.state.message_connection != null">{{ this.$store.state.message_connection }}</h1>
     <v-btn
       color="primary"
       text
