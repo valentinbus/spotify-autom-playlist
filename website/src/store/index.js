@@ -12,35 +12,9 @@ export default new Vuex.Store({
         jwt_token: null,
         user_photo: null,
         user_id: null,
-    },
-    //check if token is valid
-    getters: {
-        checkToken: state => {
-            let config = {
-                headers: {
-                    jwt_token: state.jwt_token
-                }
-            };
-            axios
-                .get("http://localhost:5000/check-token", config)
-                .then(
-                    response => (
-                        cathError(response, state)
-                    )
-                );
-            return state.connected
-        },
+        message_connection: null,
     },
     mutations: {},
     actions: {}
 });
 
-function cathError(response, state) {
-    if (response['data']["error"]) {
-        state.connected = false
-        return "You have to login before"
-    }
-    else {
-        return "ok"
-    }
-}

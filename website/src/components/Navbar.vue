@@ -1,7 +1,11 @@
 <template>
     <nav>
         <v-toolbar app>
-            <v-toolbar-side-icon @click="drawer = !drawer" class="grey--text"  v-on:click="loadData()"></v-toolbar-side-icon>
+            <v-toolbar-side-icon
+                @click="drawer = !drawer"
+                class="grey--text"
+                v-on:click="loadData()"
+            ></v-toolbar-side-icon>
             <v-toolbar-title class="text-uppercase grey--text">
                 <span>SPOTIFY</span>
             </v-toolbar-title>
@@ -38,7 +42,7 @@
                         router
                         :to="link.route"
                     >
-                        <div v-on:click="logOut(link.text)">
+                        <div v-on:click="checkToken(), logOut(link.text)">
                             <v-list-tile-action>
                                 <v-icon class="white--text">{{ link.icon }}</v-icon>
                             </v-list-tile-action>
@@ -72,6 +76,7 @@
 
 <script>
 import axios from "../../node_modules/axios";
+import { mapGetters } from "vuex";
 
 export default {
     data() {
@@ -94,26 +99,26 @@ export default {
             snackbar: false
         };
     },
+    // computed: mapGetters(["checkToken"]),
     mounted() {},
     methods: {
         loadData() {
-
             let config = {
                 headers: {
                     jwt_token: this.$store.state.jwt_token
                 }
             };
             this.connected = this.$store.state.connected;
-            console.log("connected:::" + this.connected);
 
             axios
                 .get("http://localhost:5000/get-user", config)
                 .then(
                     response => (
                         (this.info = response["data"]),
-                        (this.$store.state.user_photo = response["data"][0]["user_photo"]),
-                        (this.$store.state.user_id = response["data"][0]["user_id"]),
-                        console.log("ici:::" + response["data"])
+                        (this.$store.state.user_photo =
+                            response["data"][0]["user_photo"]),
+                        (this.$store.state.user_id =
+                            response["data"][0]["user_id"])
                     )
                 );
         },
@@ -123,6 +128,28 @@ export default {
                 console.log(
                     "logout connected state:::" + this.$store.state.connected
                 );
+            }
+        },
+        checkToken() {
+            let config = {
+                headers: {
+                    jwt_token: this.$store.state.jwt_token
+                }
+            };
+            axios
+                .get("http://localhost:5000/check-token", config)
+                .then(
+                    response => (
+                        console.log(this.cathError(response)),
+                        this.cathError(response)
+                    )
+                );
+        },
+        cathError(response) {
+            if (response["data"]["error"]) {
+                this.$store.state.connected = false;
+                this.$store.state.message_connection = "Token has expired"
+                this.$router.push('/connection')
             }
         }
     }
