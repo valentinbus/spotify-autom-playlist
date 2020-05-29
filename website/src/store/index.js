@@ -12,7 +12,7 @@ export default new Vuex.Store({
         jwt_token: null,
         user_photo: null,
         user_id: null,
-        message_connection: null,
+        message_connection: null
     },
     mutations: {},
     actions: {}

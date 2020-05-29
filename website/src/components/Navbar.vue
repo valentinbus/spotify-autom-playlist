@@ -17,11 +17,32 @@
                     <v-icon left>expand_more</v-icon>
                     <span>Menu</span>
                 </v-btn>
-                <v-list>
-                    <v-list-tile v-for="link in links" :key="link.text" router :to="link.route">
-                        <v-list-tile-title>{{ link.text }}</v-list-tile-title>
-                    </v-list-tile>
-                </v-list>
+                <div v-if="this.$store.state.connected==true">
+                    <v-list>
+                        <v-list-tile
+                            v-for="link in links_connected"
+                            :key="link.text"
+                            router
+                            :to="link.route"
+                        >
+                            <v-list-tile-title>{{ link.text }}</v-list-tile-title>
+                        </v-list-tile>
+                    </v-list>
+                </div>
+                <div v-if="this.$store.state.connected==false">
+                    <v-list>
+                        <v-list-tile
+                            v-for="link in links_disconnected"
+                            :key="link.text"
+                            router
+                            :to="link.route"
+                        >
+                            <div v-on:click="checkToken(), logOut(link.text)">
+                                <v-list-tile-title>{{ link.text }}</v-list-tile-title>
+                            </div>
+                        </v-list-tile>
+                    </v-list>
+                </div>
             </v-menu>
         </v-toolbar>
 
@@ -148,8 +169,8 @@ export default {
         cathError(response) {
             if (response["data"]["error"]) {
                 this.$store.state.connected = false;
-                this.$store.state.message_connection = "Token has expired"
-                this.$router.push('/connection')
+                this.$store.state.message_connection = "Token has expired";
+                this.$router.push("/connection");
             }
         }
     }
