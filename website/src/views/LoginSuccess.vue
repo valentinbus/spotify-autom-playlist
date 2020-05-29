@@ -29,22 +29,6 @@ export default {
                 )
             );
         console.log(this.$store.state.jwt_token)
-        // let config = {
-        //     headers: {
-        //         jwt_token: this.$store.state.jwt_token
-        //     }
-        // };
-        // axios
-        //     .get("http://localhost:5000/get-user", config)
-        //     .then(
-        //         response => (
-        //             (this.$store.state.user_photo =
-        //                 response["data"][0]["user_photo"]),
-        //             (this.$store.state.user_id =
-        //                 response["data"][0]["user_id"]),
-        //             console.log("ici:::" + response["data"])
-        //         )
-        //     );
     },
     methods: {
         get_url() {
