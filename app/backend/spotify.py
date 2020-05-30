@@ -357,12 +357,8 @@ class Spotify:
         """
         Clear db
         """
-        print(f"USERID:::{user_id}")
-        categories = Category.query.all()
         playlists = Playlist.query.filter_by(user_id=user_id)
-        [CategoryTrack.query.filter_by(category_id=category.id).delete() for category in categories]
         [TrackPlaylist.query.filter_by(playlist_id=playlist.id).delete() for playlist in playlists]
-        categories.delete()
         playlists.delete()
         User.query.filter_by(id=user_id).delete()
         db.session.commit()
