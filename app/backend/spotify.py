@@ -96,7 +96,6 @@ class Spotify:
             url="https://api.spotify.com/v1/me/",
             headers=headers
         )
-        pprint(f"check token result:::{result.json()}")
         return result.json()
 
     def _get_user_id(self, token):
@@ -210,39 +209,38 @@ class Spotify:
             if result.json().get('genres'):
                 #print(result.json().get('genres'))
                 for category_name in result.json().get('genres'):
-                    # if db.session.query(Category).filter_by(name=category_name).first() is None:
-                    cat = Category(name=category_name, user_id=user_id)
-                    db.session.add(cat)
-                    db.session.commit()
+                    if db.session.query(Category).filter_by(name=category_name).first() is None:
+                        cat = Category(name=category_name)
+                        db.session.add(cat)
+                        db.session.commit()
+
+                        category_id = db.session.query(Category).filter_by(name=category_name).first().id
+                        track_id = track.id
+
+                        response.append(
+                            {
+                                'category_id': category_id,
+                                'category_name': category_name,
+                            }
+                        )
+
+
 
                     category_id = db.session.query(Category).filter_by(name=category_name).first().id
                     track_id = track.id
-
-                    response.append(
-                        {
-                            'category_id': category_id,
-                            'category_name': category_name,
-                            'user_id': user_id
-                        }
-                    )
-
-
-
-                    category_id = db.session.query(Category).filter_by(name=category_name).first().id
-                    track_id = track.id
-                    if db.session.query(CategoryTrack).filter_by(track_id=track_id, category_id=category_id).first() is None:
+                    if db.session.query(CategoryTrack).filter_by(track_id=track_id).first() is None:
                         category_track = CategoryTrack(track_id=track_id, category_id=category_id)
                         db.session.add(category_track)
                         db.session.commit()
 
-                    # else:
-                    #     category = db.session.query(Category).filter_by(name=category_name).first()
-                    #     response.append(
-                    #         {
-                    #             'category_id': category.id,
-                    #             'category_name': category.name
-                    #         }
-                    #     )
+                    else:
+                        category = db.session.query(Category).filter_by(name=category_name).first()
+                        response.append(
+                            {
+                                'category_id': category.id,
+                                'category_name': category.name
+                            }
+                        )
 
         return response
 
@@ -343,7 +341,6 @@ class Spotify:
         Call all actions to init db
         """
         #:
-
         if db.session.query(Playlist).filter_by(user_id=user_id, name="Loved Tracks").first() is None:
             self._get_user_id(token)
             self._init_loved_track(token)
@@ -354,6 +351,23 @@ class Spotify:
     
         else:
             return {'message': 'Db already init'}
+
+
+    def clear_db(self, token, user_id):
+        """
+        Clear db
+        """
+        print(f"USERID:::{user_id}")
+        categories = Category.query.all()
+        playlists = Playlist.query.filter_by(user_id=user_id)
+        [CategoryTrack.query.filter_by(category_id=category.id).delete() for category in categories]
+        [TrackPlaylist.query.filter_by(playlist_id=playlist.id).delete() for playlist in playlists]
+        categories.delete()
+        playlists.delete()
+        User.query.filter_by(id=user_id).delete()
+        db.session.commit()
+
+        return {'message': 'Db is clear'}
 
 
     def get_tracks(self, user_id):
@@ -437,33 +451,37 @@ class Spotify:
             'relevant_category': list()
         }
 
-        #This query give us all most relevant category.id from loved track 
-        #playlist based on category track table
-        categories_id = [category[0] for category in db.session.query(Category.id).filter_by(user_id=user_id)]
-        query = (db.session.query(
-            CategoryTrack.category_id, 
-            db.func.count(CategoryTrack.category_id).label('count'))
-            .filter(CategoryTrack.category_id.in_(categories_id))
-            .group_by(
-                CategoryTrack.category_id)
-            .order_by(
-                db.func.count(CategoryTrack.category_id).desc())
-            .limit(10)
-        )
+        #Determine categories for a user based on loved tracks playlist
+        playlist_id = db.session.query(Playlist).filter_by(user_id=user_id).first().id
+        tracks_playlist = db.session.query(TrackPlaylist).filter_by(playlist_id=playlist_id)
+        categories = list()
+        for track_playlist in tracks_playlist:
+            track_id = str(track_playlist.track_id)
+            try:
+                category_id = db.session.query(CategoryTrack).filter_by(track_id=track_id).first().category_id
+                categories.append(category_id)
+            except AttributeError:
+                print('Track has no category')
 
-        #This give us cateogry name from previous request
-        for element in query:
-            query = (db.session.query(Category.name, Category.id)
-            .filter_by(id=element[0])
-            )
-            
-            for element in query:
-                print(element)
-                d = {
-                    "name": element[0],
-                    "id": element[1]
-                }
-                response['relevant_category'].append(d)
+        #Get top 10 category most recurent
+        category_counter = {}
+        for category in categories:
+            if category in category_counter:
+                category_counter[category] += 1
+            else:
+                category_counter[category] = 1
+
+        revelant_cat = sorted(category_counter, key = category_counter.get, reverse = True)
+        top_10 = revelant_cat[:10]
+        print(top_10)
+
+        for category_id in top_10:
+            query = db.session.query(Category).filter_by(id=category_id).first()
+            d = {
+                "name": query.name,
+                "id": query.id
+            }
+            response['relevant_category'].append(d)
 
         return response
 

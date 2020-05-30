@@ -125,6 +125,18 @@ class InitDb(Resource):
         return jsonify(spotify.init_db(baerer_token, user_id))
 
 
+@api.route('/clear-db')
+class ClearDb(Resource):
+    def delete(self):
+        """
+        Clear DB
+        """
+        jwt_token = request.headers.get('jwt_token')
+        baerer_token = jwt.decode(jwt_token, os.getenv('SECRET_KEY'), algorithm="HS256").get('baerer_token')
+        user_id = jwt.decode(jwt_token, os.getenv('SECRET_KEY'), algorithm="HS256").get('user_id')
+
+        return jsonify(spotify.clear_db(baerer_token, user_id))
+
 @api.route('/get-tracks')
 class GetTracks(Resource):
     def get(self):
