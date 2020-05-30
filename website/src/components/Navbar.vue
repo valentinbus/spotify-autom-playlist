@@ -109,6 +109,7 @@ export default {
             links_connected: [
                 { text: "Dashboard", route: "/" },
                 { text: "Synchronize", route: "/init" },
+                { text: "Clear Data", route: "/clear" },
                 { text: "Create Playlist", route: "/createplaylist" },
                 { text: "Test", route: "/test" },
                 { text: "Logout", route: "/connection" }

@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Dashboard from './views/Dashboard.vue'
 import Initialise from './views/Initialise.vue'
+import Clear from './views/ClearDb.vue'
 import Team from './views/Team.vue'
 import CreatePlaylist from './views/CreatePlaylist'
 import Connection from './views/Connection'
@@ -23,6 +24,11 @@ export default new Router({
       path: '/init',
       name: 'init',
       component: Initialise
+    },
+    {
+      path: '/clear',
+      name: 'clear',
+      component: Clear
     },
     {
       path: '/connection',
