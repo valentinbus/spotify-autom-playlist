@@ -36,10 +36,6 @@ SCOPE_AUTHORIZATION = (
 )
 
 class Spotify:
-    def __init__(self):
-        self.baerer_token = None
-        self.user_id = None
-
 
     def _authorization_ulr(self):
         """
@@ -123,8 +119,6 @@ class Spotify:
             db.session.add(u)
             db.session.commit()
 
-        self.user_id = user_id
-
         return user_id
 
 
@@ -181,6 +175,7 @@ class Spotify:
                     t = Track(id=track['id'], name=track['name'], artist=track['artist'])
                     db.session.add(t)
                     db.session.commit()
+                self._init_first_playlist(token, user_id, track['id'])
 
         return response
 
@@ -243,7 +238,7 @@ class Spotify:
         return response
 
 
-    def _init_first_playlist(self, token, user_id):
+    def _init_first_playlist(self, token, user_id, track_id):
         """
         Use to create a playlist with all loved tracks to not call again spotify api
         """
@@ -255,12 +250,10 @@ class Spotify:
             db.session.commit()
 
             #Create all connections to TrackPlaylist Table
-            tracks = db.session.query(Track).all()
-            for track in tracks:
-                if db.session.query(TrackPlaylist).filter_by(playlist_id=playlist.id, track_id=track.id).first() is None:
-                    track_playlist = TrackPlaylist(playlist_id=playlist.id, track_id=track.id)
-                    db.session.add(track_playlist)
-                    db.session.commit()
+            if db.session.query(TrackPlaylist).filter_by(playlist_id=playlist.id, track_id=track_id).first() is None:
+                track_playlist = TrackPlaylist(playlist_id=playlist.id, track_id=track_id)
+                db.session.add(track_playlist)
+                db.session.commit()
 
             response =  {
                 'message': "Good !",
@@ -274,12 +267,10 @@ class Spotify:
             playlist = db.session.query(Playlist).filter_by(user_id=user_id, name='Loved Tracks').first()
 
             #Create all connections to TrackPlaylist Table
-            tracks = db.session.query(Track).all()
-            for track in tracks:
-                if db.session.query(TrackPlaylist).filter_by(playlist_id=playlist.id, track_id=track.id).first() is None:
-                    track_playlist = TrackPlaylist(playlist_id=playlist.id, track_id=track.id)
-                    db.session.add(track_playlist)
-                    db.session.commit()
+            if db.session.query(TrackPlaylist).filter_by(playlist_id=playlist.id, track_id=track_id).first() is None:
+                track_playlist = TrackPlaylist(playlist_id=playlist.id, track_id=track_id)
+                db.session.add(track_playlist)
+                db.session.commit()
 
 
             response = {
@@ -310,12 +301,11 @@ class Spotify:
             # track_id = track_id[0]
             if result:
                 track_id = result[0]
-                if db.session.query(TrackPlaylist).filter_by(playlist_id=playlist_id_db, track_id=track_id).first() is None:
-                    category_track = TrackPlaylist(playlist_id=playlist_id_db, track_id=track_id)
-                    db.session.add(category_track)
-                    db.session.commit()
-                    
-                    list_track_id.append(track_id)
+                category_track = TrackPlaylist(playlist_id=playlist_id_db, track_id=track_id)
+                db.session.add(category_track)
+                db.session.commit()
+                
+                list_track_id.append(track_id)
 
 
         #Add tracks to spotify playlist
@@ -348,7 +338,6 @@ class Spotify:
         if db.session.query(Playlist).filter_by(user_id=user_id, name="Loved Tracks").first() is None:
             self._get_user_id(token)
             self._init_loved_track(token, user_id)
-            self._init_first_playlist(token, user_id)
             self._init_category(token, user_id)
 
             return {'message': 'Db is iniatilise with first Playlist Loved Tracks'}
@@ -452,12 +441,13 @@ class Spotify:
         }
 
         #Determine categories for a user based on loved tracks playlist
-        playlist_id = db.session.query(Playlist).filter_by(user_id=user_id).first().id
+        playlist_id = db.session.query(Playlist).filter_by(name="Loved Tracks", user_id=user_id).first().id
         #print(f"PLAYLIST ID:::{playlist_id}")
         tracks_playlist = db.session.query(TrackPlaylist).filter_by(playlist_id=playlist_id)
         categories = list()
         for track_playlist in tracks_playlist:
             track_id = track_playlist.track_id
+            # print(f"TRACK ID:::{track_id}")
             try:
                 category_id = db.session.query(CategoryTrack).filter_by(track_id=track_id).first().category_id
                 categories.append(category_id)
@@ -476,7 +466,7 @@ class Spotify:
 
         revelant_cat = sorted(category_counter, key = category_counter.get, reverse = True)
         top_10 = revelant_cat[:10]
-        #print(top_10)
+        print(top_10)
 
         for category_id in top_10:
             query = db.session.query(Category).filter_by(id=category_id).first()
@@ -496,94 +486,35 @@ class Spotify:
         if q.isdigit() and db.session.query(Category).filter_by(id=q).first() is not None:
             playlist_name = db.session.query(Category).filter_by(id=q).first().name
 
-            #Check if playlist already exist for user
-            sql = f"SELECT * FROM \"playlist\" WHERE name='{playlist_name}' and user_id='{user_id}';"
-            result = db.engine.execute(sql)
-            result = [row[0] for row in result]
+            headers = {
+                'Authorization': token,
+            }
 
-            pprint(f"RESULT:::{result}")
+            data = {
+                "name": playlist_name,
+                "description": f"Your favorite {playlist_name} tracks",
+                "public": False
+            }
 
+            result = requests.post(
+                url=f"https://api.spotify.com/v1/users/{user_id}/playlists",
+                headers=headers,
+                data=json.dumps(data)
+            )
 
-            if not result: #if playlist does not exist
-                headers = {
-                    'Authorization': token,
-                }
+            playlist = Playlist(name=playlist_name, user_id=user_id, spotify_id=result.json().get('id'))
+            db.session.add(playlist)
+            db.session.commit()
 
-                data = {
-                    "name": playlist_name,
-                    "description": f"Your favorite {playlist_name} tracks",
-                    "public": False
-                }
+            self._add_track(token, playlist_name, result.json().get('id'), user_id)
 
-                result = requests.post(
-                    url=f"https://api.spotify.com/v1/users/{user_id}/playlists",
-                    headers=headers,
-                    data=json.dumps(data)
-                )
+            return {
+                "message": "playlist is create",
+                "playlist_name": playlist_name,
+                "playlist_id": result.json().get('id')
+            }
 
-                if db.session.query(Playlist).filter_by(name=playlist_name, user_id=user_id).first() is None:
-                    playlist = Playlist(name=playlist_name, user_id=user_id, spotify_id=result.json().get('id'))
-                    db.session.add(playlist)
-                    db.session.commit()
-
-                self._add_track(token, playlist_name, result.json().get('id'), user_id)
-                #return result.json()
-                return {
-                    "message": "playlist is create",
-                    "playlist_name": playlist_name,
-                    "playlist_id": result.json().get('id')
-                }
-
-            else:
-                return {
-                    "message": "playlist already exists"
-                }
         else:
             return {
                 "message": "You have to choose an existing category"
             }
-
-
-#TODO add all delete and update/sync methods
-
-
-
-
-
-
-    # def _check_existing_playlist(self, token, playlist_name):
-    #     """
-    #     Check if a playlist exist on spotify account
-    #     TODO it works but I think there is a delay between playlist creation
-    #     and when it appears on spotify so does not well
-    #     """
-    #     headers = {
-    #         'Authorization': token,
-    #     }
-
-    #     params = {
-    #         'limit': 50
-    #     }
-
-    #     url = "https://api.spotify.com/v1/me/playlists"
-
-    #     result = requests.get(
-    #         headers=headers,
-    #         url=url
-    #     )
-
-    #     pprint(result.json())
-    #     for item in result.json().get('items'):
-    #         #If playlist exists return false
-    #         if item.get('name') == playlist_name:
-    #             return {
-    #                 "response": False,
-    #                 "playlist_name": playlist_name,
-    #                 "playlist_id": item.get('id')
-    #             }
-    #     #TODO Ce n'est pas ordonné il faut donc que je retourne la bonne valeur, ici je retourne toujours la même playlist
-    #     return {
-    #         "response": True,
-    #         "playlist_name": playlist_name,
-    #         "playlist_id": "Does not exist yet"
-    #     }
