@@ -53,7 +53,7 @@
                         <v-avatar size="100">
                             <img class="text-lg-center" :src="this.$store.state.user_photo" />
                         </v-avatar>
-                        <p class="white--text subheading mt-1">{{ this.$store.state.user_id }}</p>
+                        <p class="white--text subheading mt-1">{{ this.$store.state.user_name }}</p>
                     </v-flex>
                 </v-layout>
                 <v-list>
@@ -140,7 +140,9 @@ export default {
                         (this.$store.state.user_photo =
                             response["data"][0]["user_photo"]),
                         (this.$store.state.user_id =
-                            response["data"][0]["user_id"])
+                            response["data"][0]["user_id"]),
+                        (this.$store.state.user_name =
+                            response["data"][0]["user_name"])
                     )
                 );
         },

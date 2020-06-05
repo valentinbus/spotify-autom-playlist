@@ -16,7 +16,7 @@
                                 :class="{ 'on-hover': hover }"
                             >
                                 <v-img
-                                    @click="choose(item.id)"
+                                    @click="choose(item.id), playlistName(item.name)"
                                     @click.stop="dialog = true"
                                     :src="item.img"
                                     height="225px"
@@ -62,7 +62,7 @@
                         <div class="dialog">
                             <v-card-title class="headline">Warning</v-card-title>
 
-                            <v-card-text>Are you sure to want to create {{ chosen_playlist }} playlist ?</v-card-text>
+                            <v-card-text>Are you sure to want to create {{ playlist_name }} playlist ?</v-card-text>
 
                             <v-card-actions>
                                 <v-spacer></v-spacer>
@@ -89,6 +89,7 @@ import axios from "../../node_modules/axios";
 export default {
     data: () => ({
         chosen_playlist: null,
+        playlist_name: null,
         popup: false,
         test: null,
         name: "CreatePlaylist",
@@ -135,6 +136,9 @@ export default {
         choose(chosen_playlist) {
             console.log(chosen_playlist);
             this.chosen_playlist = chosen_playlist;
+        },
+        playlistName(playlist_name) {
+            this.playlist_name = playlist_name
         },
         createPlaylist(chosen_playlist) {
             let config = {

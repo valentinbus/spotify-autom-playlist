@@ -428,7 +428,8 @@ class Spotify:
 
         return [{
             "user_id": user.id,
-            "user_photo": user.photo
+            "user_photo": user.photo,
+            "user_name": user.display_name
         }]
             
 
