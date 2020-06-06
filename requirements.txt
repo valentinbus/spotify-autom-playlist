@@ -37,10 +37,12 @@ pluggy==0.13.1
 psycopg2-binary==2.8.4
 py==1.8.1
 pycodestyle==2.5.0
+PyJWT==1.7.1
 pyparsing==2.4.6
 pyrsistent==0.15.7
 pytest==5.3.4
 python-dateutil==2.6.1
+python-dotenv==0.13.0
 python-editor==1.0.4
 python-slugify==1.2.4
 pytz==2019.3
