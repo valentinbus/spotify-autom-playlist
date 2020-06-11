@@ -10,6 +10,11 @@ class User(db.Model):
     def __repr__(self):
         return '<User {}>'.format(self.id)   
 
+    # def __init__(self, id, display_name, photo):
+    #     self.id = id
+    #     self.display_name = display_name 
+    #     self.photo = photo
+
 class Playlist(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(140))
@@ -19,6 +24,12 @@ class Playlist(db.Model):
     def __repr__(self):
         return '<Playlist {}>'.format(self.name)
 
+    # def __init__(self, id, name, user_id, spotify_id):
+    #     self.id = id
+    #     self.name = name
+    #     self.user_id = user_id
+    #     self.spotify_id = spotify_id
+
 class TrackPlaylist(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     playlist_id = db.Column(db.Integer, db.ForeignKey('playlist.id'))
@@ -26,6 +37,11 @@ class TrackPlaylist(db.Model):
 
     def __repr__(self):
         return '<TrackPlaylist {}>'.format(self.id)
+
+    # def __init__(self, id, playlist_id, track_id):
+    #     self.id = id
+    #     self.playlist_id = playlist_id
+    #     self.track_id = track_id
 
 class Track(db.Model):
     id = db.Column(db.String(140), primary_key=True)
