@@ -43,45 +43,41 @@ jobs:
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
-    - name: Connect to PostgreSQL
-      run: |
-        flask db init
-        flask db migrate
-        flask db upgrade
-      env:
-        POSTGRES_HOST: postgres
-        POSTGRES_PORT: 5432
-
     - name: Test with unittest
+      env:
+        TEST_DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
+        SECRET_KEY: ${{ secrets.SECRET_KEY }}
       run: |
         python3 -m app.tests.test_app
+        python3 -m app.tests.test_spotify
+        python3 -m app.tests.test_models
 
-  deploy:
+  # deploy:
 
-    runs-on: ubuntu-latest
-    needs: build
+  #   runs-on: ubuntu-latest
+  #   needs: build
 
-    steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python 3.7
-      uses: actions/setup-python@v1
-      with:
-        python-version: 3.7
-    - name: Deploy
-      working-directory: flask
-      env:
-        HOME_URL: ${{ secrets.HOME_URL }}
-        REDIRECT_URL: ${{ secrets.REDIRECT_URL }}
-      run: |
-        pip install virtualenv 
-        virtualenv venv 
-        source ./venv/bin/activate 
-        pip install -r ../requirements.txt
-        mkdir ~/.aws/ 
-        echo "[perso]
-        aws_access_key_id = ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws_secret_access_key = ${{ secrets.AWS_SECRET_KEY_ID }}
-        region = eu-west-1" > ~/.aws/credentials 
-        cat ~/.aws/credentials 
-        echo ${{ secrets.ZAPPA_SETTINGS }} > zappa_settings.json 
-        zappa update
+  #   steps:
+  #   - uses: actions/checkout@v2
+  #   - name: Set up Python 3.7
+  #     uses: actions/setup-python@v1
+  #     with:
+  #       python-version: 3.7
+  #   - name: Deploy
+  #     working-directory: flask
+  #     env:
+  #       HOME_URL: ${{ secrets.HOME_URL }}
+  #       REDIRECT_URL: ${{ secrets.REDIRECT_URL }}
+  #     run: |
+  #       pip install virtualenv 
+  #       virtualenv venv 
+  #       source ./venv/bin/activate 
+  #       pip install -r ../requirements.txt
+  #       mkdir ~/.aws/ 
+  #       echo "[perso]
+  #       aws_access_key_id = ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #       aws_secret_access_key = ${{ secrets.AWS_SECRET_KEY_ID }}
+  #       region = eu-west-1" > ~/.aws/credentials 
+  #       cat ~/.aws/credentials 
+  #       echo ${{ secrets.ZAPPA_SETTINGS }} > zappa_settings.json 
+  #       zappa update
