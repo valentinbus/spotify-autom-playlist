@@ -4,7 +4,7 @@ To authent user have to go on /authent
 import json
 import logging
 import os
-from app import app
+from app import application
 from flask import (
     Flask,
     request,
@@ -32,11 +32,11 @@ from pprint import pprint
 logging.basicConfig(level=logging.DEBUG)
 spotify = Spotify()
 
-CORS(app)
-api = Api(app)
-app.config['CORS_HEADERS'] = 'Content-Type'
+CORS(application)
+api = Api(application)
+application.config['CORS_HEADERS'] = 'Content-Type'
 
-cache = Cache(app, config={'CACHE_TYPE': 'simple'})
+cache = Cache(application, config={'CACHE_TYPE': 'simple'})
 
 """
 |---------------------------------|
@@ -217,7 +217,7 @@ class CreatePlaylist(Resource):
 |---------------------------------|
 """
 if __name__ == '__main__':
-    app.run(
+    application.run(
         debug=True,
         host=os.getenv('HOME_URL'),
     )
