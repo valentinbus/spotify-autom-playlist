@@ -1,6 +1,10 @@
 <template>
     <v-row class="pa-4 text-center">
         <h1>Now, you can create your favorite playlist</h1>
+        <h2>First synchronize you songs by clicking on "Synchronize".</h2>
+        <h2>When it's done go on "Create Playlist" and select the playlist you want to create.</h2>
+        <h2>You can resynchronize your songs by clicking on "Clear DB" then "Synchronize".</h2>
+        </h2>
     </v-row>
 </template>
 

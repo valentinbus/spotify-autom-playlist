@@ -107,15 +107,12 @@ export default {
             user_id: null,
             drawer: false,
             links_connected: [
-                { text: "Dashboard", route: "/" },
                 { text: "Synchronize", route: "/init" },
                 { text: "Clear Data", route: "/clear" },
                 { text: "Create Playlist", route: "/createplaylist" },
-                { text: "Test", route: "/test" },
                 { text: "Logout", route: "/connection" }
             ],
             links_disconnected: [
-                { text: "Dashboard", route: "/" },
                 { text: "Login", route: "/connection" }
             ],
             snackbar: false
