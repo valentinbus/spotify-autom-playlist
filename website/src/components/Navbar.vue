@@ -130,7 +130,7 @@ export default {
             this.connected = this.$store.state.connected;
 
             axios
-                .get("http://localhost:5000/get-user", config)
+                .get("http://164.90.234.101:5000/#/get-user", config)
                 .then(
                     response => (
                         (this.info = response["data"]),
@@ -158,7 +158,7 @@ export default {
                 }
             };
             axios
-                .get("http://localhost:5000/check-token", config)
+                .get("http://164.90.234.101:5000/#/check-token", config)
                 .then(
                     response => (
                         console.log(this.cathError(response)),

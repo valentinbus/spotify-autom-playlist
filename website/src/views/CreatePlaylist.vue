@@ -118,7 +118,7 @@ export default {
             }
         };
         axios
-            .get("http://localhost:5000/get-suggest-playlist", config)
+            .get("http://164.90.234.101:5000/#/get-suggest-playlist", config)
             .then(
                 response =>
                     (this.info = this.add_url(
@@ -151,7 +151,7 @@ export default {
 
             axios({
                 method: "post",
-                url: "http://localhost:5000/create-playlist",
+                url: "http://164.90.234.101:5000/#/create-playlist",
                 data: bodyFormData,
                 headers: {
                     jwt_token: this.$store.state.jwt_token

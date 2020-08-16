@@ -219,5 +219,6 @@ class CreatePlaylist(Resource):
 if __name__ == '__main__':
     application.run(
         debug=True,
-        host=os.getenv('HOME_URL'),
+        host='164.90.234.101',
+        port=5000
     )

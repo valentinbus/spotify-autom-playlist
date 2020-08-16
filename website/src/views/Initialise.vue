@@ -27,7 +27,7 @@ export default {
         init() {
             axios({
                 method: "put",
-                url: "http://localhost:5000/init-db",
+                url: "http://164.90.234.101:5000/#/init-db",
                 headers: {
                     jwt_token: this.$store.state.jwt_token
                 }
