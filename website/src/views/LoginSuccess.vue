@@ -22,7 +22,7 @@ export default {
         this.get_url();
         axios
             .get(
-                "http://164.90.234.101:5000/#/get-token?code=" +
+                "http://164.90.234.101:5000/get-token?code=" +
                     this.code.query["code"]
             )
             .then(

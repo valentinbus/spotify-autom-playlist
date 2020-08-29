@@ -27,7 +27,7 @@ export default {
         clear() {
             axios({
                 method: "delete",
-                url: "http://164.90.234.101:5000/#/clear-db",
+                url: "http://164.90.234.101:5000/clear-db",
                 headers: {
                     jwt_token: this.$store.state.jwt_token
                 }

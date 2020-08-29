@@ -26,7 +26,7 @@ export default {
     mounted() {
         console.log((this.$store.state.connected = false));
         axios
-            .get("http://164.90.234.101:5000/#/authent", {
+            .get("http://164.90.234.101:5000/authent", {
                 headers: {
                     "Access-Control-Allow-Origin": "*"
                 }
