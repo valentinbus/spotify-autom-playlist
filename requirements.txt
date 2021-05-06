@@ -13,7 +13,7 @@ docutils==0.16
 durationpy==0.5
 Flask==1.1.1
 Flask-Caching==1.8.0
-Flask-Cors==3.0.8
+Flask-Cors==3.0.9
 Flask-Migrate==2.5.3
 flask-restplus==0.13.0
 Flask-Session==0.3.1
